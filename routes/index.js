@@ -14,13 +14,84 @@ router.get('/', (req, res) => {
 });
 
 // Admin Route
-router.get('/admin', (req, res) => {
-    res.render('base', { title: 'Admin - Tempest Guild', page: 'admin' });
+router.get('/admin', async (req, res) => {
+    try {
+        const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
+        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles });
+    } catch (error) {
+        console.error('Error fetching news articles:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
+
 // News Route
-router.get('/news', (req, res) => {
-    res.render('base', { title: 'News - Tempest Guild', page: 'news' });
+// router.get('/news', (req, res) => {
+//     res.render('base', { title: 'News - Tempest Guild', page: 'news' });
+// });
+
+// News Management Routes
+
+// Get all news articles (for the public news page)
+router.get('/news', async (req, res) => {
+    try {
+        const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
+        res.render('base', { title: 'Guild News', page: 'news', body: 'news', newsArticles });
+    } catch (error) {
+        console.error('Error fetching news articles:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Admin: Get all news articles for management
+router.get('/admin/news', async (req, res) => {
+    try {
+        const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
+        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles });
+    } catch (error) {
+        console.error('Error fetching news articles:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Admin: Add a new article
+router.post('/admin/news/add', async (req, res) => {
+    const { title, content } = req.body;
+
+    try {
+        await db.query('INSERT INTO news_articles (title, content) VALUES (?, ?)', [title, content]);
+        res.redirect('/admin/news');
+    } catch (error) {
+        console.error('Error adding news article:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Admin: Delete an article
+router.post('/admin/news/delete/:id', async (req, res) => {
+    const articleId = req.params.id;
+
+    try {
+        await db.query('DELETE FROM news_articles WHERE id = ?', [articleId]);
+        res.redirect('/admin/news');
+    } catch (error) {
+        console.error('Error deleting news article:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Admin: Update an article
+router.post('/admin/news/edit/:id', async (req, res) => {
+    const articleId = req.params.id;
+    const { title, content } = req.body;
+
+    try {
+        await db.query('UPDATE news_articles SET title = ?, content = ?, updated_at = NOW() WHERE id = ?', [title, content, articleId]);
+        res.redirect('/admin/news');
+    } catch (error) {
+        console.error('Error updating news article:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 // Contact Route

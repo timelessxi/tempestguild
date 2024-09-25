@@ -1,249 +1,304 @@
 <div class="container"></div>
-    <h1 class="text-center my-4">Admin Dashboard</h1>
+<h1 class="text-center my-4">Admin Dashboard</h1>
 
-    <!-- Tabs for Admin Sections -->
-    <ul class="nav nav-tabs" id="adminTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users"
-                aria-selected="true">User Management</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="bank-requests-tab" data-toggle="tab" href="#bank-requests" role="tab"
-                aria-controls="bank-requests" aria-selected="false">Guild Bank Requests</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="news-tab" data-toggle="tab" href="#news" role="tab" aria-controls="news"
-                aria-selected="false">News Management</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="uploads-tab" data-toggle="tab" href="#uploads" role="tab" aria-controls="uploads"
-                aria-selected="false">File Uploads</a>
-        </li>
-    </ul>
+<!-- Tabs for Admin Sections -->
+<ul class="nav nav-tabs" id="adminTabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users"
+            aria-selected="true">User Management</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="bank-requests-tab" data-toggle="tab" href="#bank-requests" role="tab"
+            aria-controls="bank-requests" aria-selected="false">Guild Bank Requests</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="news-tab" data-toggle="tab" href="#news" role="tab" aria-controls="news"
+            aria-selected="false">News Management</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="uploads-tab" data-toggle="tab" href="#uploads" role="tab" aria-controls="uploads"
+            aria-selected="false">File Uploads</a>
+    </li>
+</ul>
 
-    <div class="tab-content mt-4" id="adminTabContent">
+<div class="tab-content mt-4" id="adminTabContent">
 
-        <!-- User Management Tab -->
-        <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
-            <h3>User Management</h3>
-            <table class="table table-dark table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">Username</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Characters and Professions</th>
-                        <th scope="col">Actions</th> <!-- New column for buttons -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Faux User Data -->
-                    <tr>
-                        <td><a href="/user/twome">Twome</a></td>
-                        <td>twome@example.com</td>
-                        <td>
-                            <ul>
-                                <li>
-                                    <strong>Twome (Hunter)</strong>
-                                    <ul>
-                                        <li>Leatherworking</li>
-                                        <li>Skinning</li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <strong>AltHunter (Hunter)</strong>
-                                    <ul>
-                                        <li>Engineering</li>
-                                        <li>Mining</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </td>
-                        <td>
-                            <a href="/user/twome/view" class="btn btn-info btn-sm">View</a>
-                            <a href="/user/twome/edit" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="/user/twome/delete" class="btn btn-danger btn-sm">Delete</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><a href="/user/silverkin">Silverkin</a></td>
-                        <td>silverkin@example.com</td>
-                        <td>
-                            <ul>
-                                <li>
-                                    <strong>Silverkin (Priest)</strong>
-                                    <ul>
-                                        <li>Alchemy</li>
-                                        <li>Herbalism</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </td>
-                        <td>
-                            <a href="/user/silverkin/view" class="btn btn-info btn-sm">View</a>
-                            <a href="/user/silverkin/edit" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="/user/silverkin/delete" class="btn btn-danger btn-sm">Delete</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><a href="/user/oneme">Oneme</a></td>
-                        <td>oneme@example.com</td>
-                        <td>
-                            <ul>
-                                <li>
-                                    <strong>Oneme (Mage)</strong>
-                                    <ul>
-                                        <li>Enchanting</li>
-                                        <li>Tailoring</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </td>
-                        <td>
-                            <a href="/user/oneme/view" class="btn btn-info btn-sm">View</a>
-                            <a href="/user/oneme/edit" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="/user/oneme/delete" class="btn btn-danger btn-sm">Delete</a>
-                        </td>
-                    </tr>
-                    <!-- Add more faux users as needed -->
-                </tbody>
-            </table>
-        </div>
-
-
-        <!-- Guild Bank Requests Tab -->
-        <div class="tab-pane fade" id="bank-requests" role="tabpanel" aria-labelledby="bank-requests-tab">
-            <h3>Guild Bank Requests</h3>
-            <table class="table table-dark table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">Request ID</th>
-                        <th scope="col">Username</th>
-                        <th scope="col">Item</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Faux Guild Bank Request Data -->
-                    <tr>
-                        <td>#001</td>
-                        <td>Twome</td>
-                        <td>Arcanite Reaper</td>
-                        <td>Pending</td>
-                        <td>
-                            <button class="btn btn-success btn-sm">Approve</button>
-                            <button class="btn btn-danger btn-sm">Deny</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#002</td>
-                        <td>Silverkin</td>
-                        <td>Greater Healing Potion (x10)</td>
-                        <td>Pending</td>
-                        <td>
-                            <button class="btn btn-success btn-sm">Approve</button>
-                            <button class="btn btn-danger btn-sm">Deny</button>
-                        </td>
-                    </tr>
-                    <!-- Add more faux requests as needed -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- News Management Tab -->
-        <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
-            <h3>News Management</h3>
-            <div class="mb-4">
-                <button class="btn btn-primary">Add News Article</button>
-            </div>
-            <table class="table table-dark table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">Article ID</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Faux News Article Data -->
-                    <tr>
-                        <td>#001</td>
-                        <td>New Raid Achievements</td>
-                        <td>09/20/2024</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm">Edit</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#002</td>
-                        <td>Guild Meeting Update</td>
-                        <td>09/15/2024</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm">Edit</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- File Uploads Tab -->
-        <div class="tab-pane fade" id="uploads" role="tabpanel" aria-labelledby="uploads-tab">
-            <h3>File Uploads</h3>
-            <p>Use this form to upload the Guild Roster and Guild Bank files.</p>
-            <!-- Instructions -->
-            <div class="alert alert-info" role="alert">
-                <strong>Important:</strong> Please use the <em>GuildBank</em> and <em>GuildRoster</em> addons to
-                generate the necessary files.
-                After running the addons in-game, you can find the generated files in the following directory on your
-                PC:
-                <pre><code>C:\Program Files (x86)\World of Warcraft\_classic_era_\WTF\Account\YourAccountName\SavedVariables\</code></pre>
-                Look for the files <strong>GuildBank.lua</strong> and <strong>GuildRoster.lua</strong>.
-
-                <hr>
-
-                <strong>Update Guidelines:</strong>
-                <ul>
-                    <li><strong>Roster:</strong> Please update the roster file at least once every 24 hours to ensure
-                        the most current data on member activity.</li>
-                    <li><strong>Guild Bank:</strong> You should upload the guild bank file whenever items are added or
-                        removed from the bank to keep the data accurate.</li>
-                </ul>
-            </div>
-            <div class="row">
-                <!-- Guild Roster Upload -->
-                <div class="col-md-6">
-                    <div class="card bg-dark text-white mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Upload Guild Roster</h5>
-                            <form method="POST" action="/upload-roster" enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <input type="file" class="form-control-file" name="rosterFile" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block">Upload Roster File</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Guild Bank Upload -->
-                <div class="col-md-6">
-                    <div class="card bg-dark text-white mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Upload Guild Bank</h5>
-                            <form method="POST" action="/upload-bank" enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <input type="file" class="form-control-file" name="bankFile" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block">Upload Bank File</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <!-- User Management Tab -->
+    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+        <h3>User Management</h3>
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Characters and Professions</th>
+                    <th scope="col">Actions</th> <!-- New column for buttons -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Faux User Data -->
+                <tr>
+                    <td><a href="/user/twome">Twome</a></td>
+                    <td>twome@example.com</td>
+                    <td>
+                        <ul>
+                            <li>
+                                <strong>Twome (Hunter)</strong>
+                                <ul>
+                                    <li>Leatherworking</li>
+                                    <li>Skinning</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <strong>AltHunter (Hunter)</strong>
+                                <ul>
+                                    <li>Engineering</li>
+                                    <li>Mining</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <a href="/user/twome/view" class="btn btn-info btn-sm">View</a>
+                        <a href="/user/twome/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/user/twome/delete" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="/user/silverkin">Silverkin</a></td>
+                    <td>silverkin@example.com</td>
+                    <td>
+                        <ul>
+                            <li>
+                                <strong>Silverkin (Priest)</strong>
+                                <ul>
+                                    <li>Alchemy</li>
+                                    <li>Herbalism</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <a href="/user/silverkin/view" class="btn btn-info btn-sm">View</a>
+                        <a href="/user/silverkin/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/user/silverkin/delete" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="/user/oneme">Oneme</a></td>
+                    <td>oneme@example.com</td>
+                    <td>
+                        <ul>
+                            <li>
+                                <strong>Oneme (Mage)</strong>
+                                <ul>
+                                    <li>Enchanting</li>
+                                    <li>Tailoring</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <a href="/user/oneme/view" class="btn btn-info btn-sm">View</a>
+                        <a href="/user/oneme/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/user/oneme/delete" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                <!-- Add more faux users as needed -->
+            </tbody>
+        </table>
     </div>
+
+
+    <!-- Guild Bank Requests Tab -->
+    <div class="tab-pane fade" id="bank-requests" role="tabpanel" aria-labelledby="bank-requests-tab">
+        <h3>Guild Bank Requests</h3>
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Request ID</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Faux Guild Bank Request Data -->
+                <tr>
+                    <td>#001</td>
+                    <td>Twome</td>
+                    <td>Arcanite Reaper</td>
+                    <td>Pending</td>
+                    <td>
+                        <button class="btn btn-success btn-sm">Approve</button>
+                        <button class="btn btn-danger btn-sm">Deny</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>#002</td>
+                    <td>Silverkin</td>
+                    <td>Greater Healing Potion (x10)</td>
+                    <td>Pending</td>
+                    <td>
+                        <button class="btn btn-success btn-sm">Approve</button>
+                        <button class="btn btn-danger btn-sm">Deny</button>
+                    </td>
+                </tr>
+                <!-- Add more faux requests as needed -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- News Management Tab -->
+    <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
+        <h3>News Management</h3>
+
+        <!-- Add New Article Form -->
+        <div class="mb-4">
+            <h5>Add New Article</h5>
+            <form method="POST" action="/admin/news/add">
+                <div class="form-group">
+                    <label for="news-title">Title</label>
+                    <input type="text" class="form-control" id="news-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="news-content">Content</label>
+                    <textarea class="form-control" id="news-content" name="content" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Article</button>
+            </form>
+        </div>
+
+        <!-- News Articles List -->
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% newsArticles.forEach(article=> { %>
+                    <tr>
+                        <td>
+                            <%= article.id %>
+                        </td>
+                        <td>
+                            <%= article.title %>
+                        </td>
+                        <td>
+                            <%= new Date(article.created_at).toLocaleDateString() %>
+                        </td>
+                        <td>
+                            <!-- Edit and Delete actions -->
+                            <button class="btn btn-warning btn-sm" data-toggle="modal"
+                                data-target="#editModal-<%= article.id %>">Edit</button>
+                            <form method="POST" action="/admin/news/delete/<%= article.id %>" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+
+                            <!-- Edit Modal -->
+                            <div class="modal fade" id="editModal-<%= article.id %>" tabindex="-1" role="dialog"
+                                aria-labelledby="editModalLabel-<%= article.id %>" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editModalLabel-<%= article.id %>">Edit Article
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form method="POST" action="/admin/news/edit/<%= article.id %>">
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label for="edit-title-<%= article.id %>">Title</label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit-title-<%= article.id %>" name="title"
+                                                        value="<%= article.title %>" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit-content-<%= article.id %>">Content</label>
+                                                    <textarea class="form-control" id="edit-content-<%= article.id %>"
+                                                        name="content" rows="5"
+                                                        required><%= article.content %></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- File Uploads Tab -->
+    <div class="tab-pane fade" id="uploads" role="tabpanel" aria-labelledby="uploads-tab">
+        <h3>File Uploads</h3>
+        <p>Use this form to upload the Guild Roster and Guild Bank files.</p>
+        <!-- Instructions -->
+        <div class="alert alert-info" role="alert">
+            <strong>Important:</strong> Please use the <em>GuildBank</em> and <em>GuildRoster</em> addons to
+            generate the necessary files.
+            After running the addons in-game, you can find the generated files in the following directory on your
+            PC:
+            <pre><code>C:\Program Files (x86)\World of Warcraft\_classic_era_\WTF\Account\YourAccountName\SavedVariables\</code></pre>
+            Look for the files <strong>GuildBank.lua</strong> and <strong>GuildRoster.lua</strong>.
+
+            <hr>
+
+            <strong>Update Guidelines:</strong>
+            <ul>
+                <li><strong>Roster:</strong> Please update the roster file at least once every 24 hours to ensure
+                    the most current data on member activity.</li>
+                <li><strong>Guild Bank:</strong> You should upload the guild bank file whenever items are added or
+                    removed from the bank to keep the data accurate.</li>
+            </ul>
+        </div>
+        <div class="row">
+            <!-- Guild Roster Upload -->
+            <div class="col-md-6">
+                <div class="card bg-dark text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload Guild Roster</h5>
+                        <form method="POST" action="/upload-roster" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <input type="file" class="form-control-file" name="rosterFile" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Upload Roster File</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guild Bank Upload -->
+            <div class="col-md-6">
+                <div class="card bg-dark text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Upload Guild Bank</h5>
+                        <form method="POST" action="/upload-bank" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <input type="file" class="form-control-file" name="bankFile" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Upload Bank File</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 </div>
