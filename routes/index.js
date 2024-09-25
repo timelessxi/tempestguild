@@ -2,18 +2,17 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const multer = require('multer');
-const db = require('../config/db'); // Import your database config
-const { extractBankItemsFromLuaString, extractCharactersFromLuaString } = require('../utils/luaParser'); // Utility functions
+const db = require('../config/db');
+const { extractBankItemsFromLuaString, extractCharactersFromLuaString } = require('../utils/luaParser');
 
-// Set up multer for file uploads
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/' }); // Set up file upload destination
 
-// Home Route
+// Home page route
 router.get('/', (req, res) => {
     res.render('base', { title: 'Home - Tempest Guild', page: 'home' });
 });
 
-// Admin Route
+// Admin dashboard route
 router.get('/admin', async (req, res) => {
     try {
         const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
@@ -24,15 +23,7 @@ router.get('/admin', async (req, res) => {
     }
 });
 
-
-// News Route
-// router.get('/news', (req, res) => {
-//     res.render('base', { title: 'News - Tempest Guild', page: 'news' });
-// });
-
-// News Management Routes
-
-// Get all news articles (for the public news page)
+// News page route
 router.get('/news', async (req, res) => {
     try {
         const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
@@ -43,7 +34,7 @@ router.get('/news', async (req, res) => {
     }
 });
 
-// Admin: Get all news articles for management
+// Admin news management page route
 router.get('/admin/news', async (req, res) => {
     try {
         const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
@@ -54,7 +45,7 @@ router.get('/admin/news', async (req, res) => {
     }
 });
 
-// Admin: Add a new article
+// Add news article (admin)
 router.post('/admin/news/add', async (req, res) => {
     const { title, content } = req.body;
 
@@ -67,7 +58,7 @@ router.post('/admin/news/add', async (req, res) => {
     }
 });
 
-// Admin: Delete an article
+// Delete news article (admin)
 router.post('/admin/news/delete/:id', async (req, res) => {
     const articleId = req.params.id;
 
@@ -80,7 +71,7 @@ router.post('/admin/news/delete/:id', async (req, res) => {
     }
 });
 
-// Admin: Update an article
+// Edit news article (admin)
 router.post('/admin/news/edit/:id', async (req, res) => {
     const articleId = req.params.id;
     const { title, content } = req.body;
@@ -94,25 +85,25 @@ router.post('/admin/news/edit/:id', async (req, res) => {
     }
 });
 
-// Contact Route
+// Contact page route
 router.get('/contact', (req, res) => {
     res.render('base', { title: 'Contact - Tempest Guild', page: 'contact' });
 });
 
-// Login Route
+// Login page route
 router.get('/login', (req, res) => {
     res.render('base', { title: 'Login - Tempest Guild', page: 'login' });
 });
 
-// Upload Roster Route
+// Upload guild roster route
 router.post('/upload-roster', upload.single('rosterFile'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
 
-    const filePath = req.file.path; // Path to the uploaded file
+    const filePath = req.file.path;
 
-    // Read the uploaded GuildRoster.lua file
+    // Read and process the roster Lua file
     fs.readFile(filePath, 'utf8', async (err, data) => {
         if (err) {
             console.error('Error reading file:', err);
@@ -120,14 +111,13 @@ router.post('/upload-roster', upload.single('rosterFile'), async (req, res) => {
         }
 
         try {
-            // Extract characters from Lua string
             const characters = extractCharactersFromLuaString(data);
 
             if (characters.length === 0) {
                 return res.status(400).send('No characters found in the file.');
             }
 
-            // Clear the unclaimed_characters table and reset the auto-increment
+            // Clear the unclaimed_characters table
             await db.query('TRUNCATE TABLE unclaimed_characters');
 
             // Insert new characters into the database
@@ -158,7 +148,7 @@ router.post('/upload-roster', upload.single('rosterFile'), async (req, res) => {
     });
 });
 
-// Upload Bank Route
+// Upload guild bank data route
 router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
@@ -166,7 +156,7 @@ router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
 
     const filePath = req.file.path;
 
-    // Read the uploaded bank file
+    // Read and process the bank Lua file
     fs.readFile(filePath, 'utf8', async (err, data) => {
         if (err) {
             console.error('Error reading file:', err);
@@ -174,19 +164,20 @@ router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
         }
 
         try {
-            // Extract items from Lua string
             const items = extractBankItemsFromLuaString(data);
 
             if (items.length === 0) {
                 return res.status(400).send('No items found in the file.');
             }
 
+            // Clear the guild_bank table
             await db.query('TRUNCATE TABLE guild_bank');
+
+            // Insert new items into the database
             const insertPromises = items.map(item => {
-                // Ensure all required fields are present before inserting
                 if (!item.name || !item.type || !item.count || !item.rarity) {
                     console.error(`Skipping item due to missing required fields: ${JSON.stringify(item)}`);
-                    return Promise.resolve(); // Skip item and continue with others
+                    return Promise.resolve();
                 }
                 return db.query(
                     'INSERT INTO guild_bank (name, type, count, rarity, subType, stats, source) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -216,12 +207,12 @@ router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
     });
 });
 
-// Register Route
+// Register page route
 router.get('/register', (req, res) => {
     res.render('base', { title: 'Register - Tempest Guild', page: 'register' });
 });
 
-// Login Route (POST)
+// Login logic route
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -240,18 +231,16 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Roster Route
+// Guild roster page route
 router.get('/roster', async (req, res) => {
     const userId = req.session?.userId || null;
 
-    // Query for claimed characters
     const [claimedCharacters] = await db.query(`
         SELECT c.name, c.class, c.level, u.username
         FROM characters c
         JOIN users u ON c.user_id = u.id
     `);
 
-    // Query for unclaimed characters
     const [unclaimedCharacters] = await db.query('SELECT * FROM unclaimed_characters');
 
     res.render('base', {
@@ -263,10 +252,9 @@ router.get('/roster', async (req, res) => {
     });
 });
 
-// Bank Route
+// Guild bank page route
 router.get('/bank', async (req, res) => {
     try {
-        // Query for all items
         const [allItems] = await db.query('SELECT * FROM guild_bank');
 
         // Map rarity numbers to names and CSS classes
@@ -290,7 +278,6 @@ router.get('/bank', async (req, res) => {
         const materialItems = allItems.filter(item => item.type === 'Trade Goods');
         const bagItems = allItems.filter(item => item.type === 'Container');
 
-        // Render the bank.ejs template with items
         res.render('base', {
             title: 'Guild Bank - Tempest Guild',
             page: 'bank',
