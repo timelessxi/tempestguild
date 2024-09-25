@@ -1,0 +1,268 @@
+/* Global Styles */
+:root {
+    --primary-color: #3498db;
+    --success-color: #1abc9c;
+    --warning-color: #f1c40f;
+    --danger-color: #e74c3c;
+    --rarity-common: #CCCCCC;
+    --rarity-uncommon: #1eff00;
+    --rarity-rare: #0070dd;
+    --rarity-epic: #a335ee;
+    --rarity-legendary: #ff8000;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #2c3e50, #3a3d40, #000000);
+    color: white;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+}
+
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+}
+
+/* Navbar Styles */
+.navbar {
+    background: linear-gradient(135deg, #1f1c2c, #928dab, #2c5364);
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand,
+.navbar-nav .nav-link {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-brand:hover {
+    color: var(--success-color);
+}
+
+hr {
+    border-top: 1px solid #FFF0F2;
+    border-color: #c4750f;
+}
+
+
+/* Jumbotron Styles */
+.jumbotron {
+    background: linear-gradient(145deg, #1c1c1c, #333333);
+    border-radius: 10px;
+    padding: 100px 50px;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+}
+
+/* Card Styles */
+.card {
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: linear-gradient(145deg, #1c1c1c, #333333);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    max-height: 800px;
+    overflow: hidden;
+    /* Ensures excess content doesn't overflow */
+}
+
+.card-img-top {
+    max-height: 200px;
+    /* Optional: Set max height for images to prevent stretching */
+    object-fit: cover;
+    /* Ensures the image is scaled properly within its bounds */
+}
+
+.card-title {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.card-text {
+    color: #bbbbbb;
+    margin-bottom: 5px;
+}
+
+.card-text:last-child {
+    margin-bottom: 0;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Rarity Colors */
+.rarity-common {
+    color: #ffffff;
+}
+
+.rarity-uncommon {
+    color: #1eff00;
+}
+
+.rarity-rare {
+    color: #0070dd;
+}
+
+.rarity-epic {
+    color: #a335ee;
+}
+
+.rarity-legendary {
+    color: #ff8000;
+}
+
+/* Form Container */
+.form-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #1e1e1e;
+    /* Dark background */
+    border-radius: 8px;
+    color: #e0e0e0;
+    /* Light text */
+}
+
+/* Form Title */
+.form-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+/* Form Content */
+.form-content .form-group {
+    margin-bottom: 15px;
+}
+
+.form-content .form-control {
+    background-color: #2b2b2b;
+    border: 1px solid #444;
+    color: #e0e0e0;
+}
+
+.form-content .form-control:focus {
+    background-color: #2b2b2b;
+    border-color: #555;
+    box-shadow: none;
+}
+
+.form-content .btn {
+    width: 100%;
+}
+
+.form-content .form-text {
+    color: #bbbbbb;
+}
+
+.form-content .text-danger {
+    color: #ff4d4d;
+}
+
+/* News Page */
+.news-article h3 {
+    color: #ffffff;
+}
+
+.news-article p {
+    color: #e0e0e0;
+}
+
+.news-article hr {
+    border-color: #444;
+}
+
+.news-article small {
+    color: #bbbbbb;
+}
+
+/* Roster Table */
+.table {
+    color: #e0e0e0;
+    background-color: #1e1e1e;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+}
+
+.table-dark thead th {
+    background-color: #444;
+    color: #ffffff;
+}
+
+.table-dark tbody tr:hover {
+    background-color: #333;
+}
+
+.table-dark tbody td {
+    border-color: #555;
+}
+
+/* Tab Active/Inactive Colors */
+.nav-tabs .nav-link {
+    color: #bbbbbb;
+    /* Inactive tab color */
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #444;
+    color: #ffffff;
+    /* Active tab color */
+}
+
+/* Ensure the Tab Content has padding */
+.tab-content {
+    padding-top: 20px;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 10px 20px;
+    }
+
+    .jumbotron {
+        padding: 50px 20px;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .card {
+        min-height: 200px;
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+    <div class="d-flex flex-column min-vh-100">
+        <!-- Include the Navbar -->
+        <%- include('partials/navbar') %>
+
+        <main class="container my-4 flex-grow-1">
+            <% if (page === 'home') { %>
+                <%- include('home') %>
+            <% } else if (page === 'news') { %>
+                <%- include('news') %>
+            <% } else if (page === 'roster') { %>
+                <%- include('roster') %>
+            <% } else if (page === 'bank') { %>
+                <%- include('bank') %>
+            <% } else if (page === 'register') { %>
+                <%- include('register') %>
+            <% } else if (page === 'login') { %>
+                <%- include('login') %>
+            <% } else if (page === 'contact') { %>
+                <%- include('contact') %>
+            <% } else if (page === 'admin') { %>
+                <%- include('admin') %>
+            <% } else { %>
+                <p>Content not available</p>
+            <% } %>
+        </main>
+        
+
+        <!-- Include the Footer -->
+        <%- include('partials/footer') %>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
