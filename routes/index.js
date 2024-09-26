@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt'); 
 const fs = require('fs');
 const multer = require('multer');
 const db = require('../config/db');
@@ -217,19 +218,22 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
+        // Fetch user from the database by username
         const [user] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
 
+        // Check if user exists and password matches
         if (user && user.length > 0 && bcrypt.compareSync(password, user[0].password)) {
-            req.session.userId = user[0].id;
-            res.redirect('/roster');
+            req.session.userId = user[0].id;  // Set user ID in session
+            res.redirect('/');  // Redirect after successful login
         } else {
-            res.status(401).send('Invalid login credentials');
+            res.status(401).send('Invalid login credentials');  // Error for incorrect login
         }
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Guild roster page route
 router.get('/roster', async (req, res) => {

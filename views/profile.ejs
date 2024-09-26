@@ -1,0 +1,35 @@
+<div class="container">
+    <h1><%= user.username %>'s Profile</h1>
+    <% if (user.profile_image) { %>
+        <img src="<%= user.profile_image %>" alt="Profile Image" class="profile-img">
+    <% } %>
+    <p>Email: <%= user.email %></p>
+    <p>Bio: <%= user.bio %></p>
+    <p>Last Login: <%= new Date(user.last_login).toLocaleString() %></p>
+    <p>Last Activity: <%= new Date(user.last_activity).toLocaleString() %></p>
+
+    <h2>Characters</h2>
+    <% if (characters.length > 0) { %>
+        <ul>
+            <% characters.forEach(character => { %>
+                <li><%= character.name %> (Level <%= character.level %>, <%= character.class %>)</li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No characters available.</p>
+    <% } %>
+    
+    <h3>Professions</h3>
+    <% if (professions.length > 0) { %>
+        <ul>
+            <% professions.forEach(profession => { %>
+                <li><%= profession.name %> (Level <%= profession.profession_level %>)</li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No professions available.</p>
+    <% } %>
+    
+
+    <a href="/user/<%= user.id %>/edit" class="btn btn-primary">Edit Profile</a>
+</div>
