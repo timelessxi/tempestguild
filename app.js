@@ -1,43 +1,76 @@
 const express = require('express');
-const path = require('path');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
-const multer = require('multer');
-const db = require('./config/db'); // Database configuration
-const routes = require('./routes'); // Import routes
+const path = require('path');
+const db = require('./config/db'); // Your database connection
+
+
+
+
+const authRoutes = require('./routes/auth'); // Auth routes for login/register/logout
+const indexRoutes = require('./routes/index'); // Main routes for the application
+const profileRoutes = require('./routes/profile'); // Profile routes for viewing/editing user profiles
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-const sessionStore = new MySQLStore({
-    schema: {
-      tableName: 'express_sessions',  // Use the new table name
-    },
-  }, db.pool);
-  
+
+
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // For parsing JSON data
+app.use(express.urlencoded({ extended: true })); // For parsing form data
+
+// Setting up EJS as view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Static files (CSS, images, JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({
-    secret: 'your_secret_key',
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-  }));
+// MySQL Session Store Setup
+const sessionStore = new MySQLStore({
+    createDatabaseTable: false, // Since the table already exists
+    schema: {
+        tableName: 'express_sessions', // Explicitly tell it to use 'express_sessions'
+        columnNames: {
+            session_id: 'session_id',
+            expires: 'expires',
+            data: 'data'
+        }
+    }
+}, db);
 
-// Set up EJS as the view engine
-app.set('view engine', 'ejs');
+// Session middleware
+app.use(
+    session({
+        key: 'tempest_sid',
+        secret: 'your_secret_key', // Use a secure, random secret key
+        store: sessionStore,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24, // 1 day cookie expiration
+        },
+    })
+);
+app.use((req, res, next) => {
+    res.locals.username = req.session.username || null;
+    res.locals.userId = req.session.userId || null;
+    res.locals.role = req.session.role || null;
+    next();
+});
 
-// Set up multer for file uploads
-const upload = multer({ dest: 'uploads/' });
 
 // Use routes
-const profileRoutes = require('./routes/profile'); // Import profile routes
+app.use('/', authRoutes); // Authentication routes for login, register, logout
+app.use('/', indexRoutes); // General routes for home, roster, bank, etc.
+app.use('/profile', profileRoutes); // Profile routes for viewing/editing user profiles
 
-app.use('/', routes);
-app.use('/user', profileRoutes); // Ensure that '/user' routes are in place
-// Start the server
+// Error handling
+app.use((req, res, next) => {
+    res.status(404).render('404', { title: 'Page Not Found' });
+});
+
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 

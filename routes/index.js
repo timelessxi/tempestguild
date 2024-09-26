@@ -1,25 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 const fs = require('fs');
 const multer = require('multer');
 const db = require('../config/db');
 const { extractBankItemsFromLuaString, extractCharactersFromLuaString } = require('../utils/luaParser');
 
-const upload = multer({ dest: 'uploads/' }); // Set up file upload destination
+// File upload destination
+const upload = multer({ dest: 'uploads/' });
+
+// Middleware to check if the user is authenticated
+const isAuthenticated = (req, res, next) => {
+    if (req.session && req.session.userId) {
+        return next(); // User is authenticated, proceed
+    }
+    res.redirect('/login'); // Redirect to login if not authenticated
+};
+
+// Middleware to check for admin or guild master roles
+const isAdminOrGuildMaster = (req, res, next) => {
+    if (req.session && (req.session.role === 1 || req.session.role === 2)) {
+        return next(); // User has admin or guild master role, proceed
+    }
+    res.status(403).send('Access denied'); // Access denied for non-admins/non-guild masters
+};
 
 // Home page route
 router.get('/', (req, res) => {
     res.render('base', { title: 'Home - Tempest Guild', page: 'home' });
 });
 
-// Admin dashboard route
-router.get('/admin', async (req, res) => {
+// Admin dashboard route (restricted to Admin and GuildMaster roles)
+router.get('/admin', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
     try {
         const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
-        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles });
+        const [pendingUsers] = await db.query('SELECT * FROM users WHERE status = ?', ['pending']);
+
+        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles, pendingUsers });
     } catch (error) {
-        console.error('Error fetching news articles:', error);
+        console.error('Error fetching admin data:', error);
         res.status(500).send('Internal Server Error');
     }
 });
@@ -28,18 +47,7 @@ router.get('/admin', async (req, res) => {
 router.get('/news', async (req, res) => {
     try {
         const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
-        res.render('base', { title: 'Guild News', page: 'news', body: 'news', newsArticles });
-    } catch (error) {
-        console.error('Error fetching news articles:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-// Admin news management page route
-router.get('/admin/news', async (req, res) => {
-    try {
-        const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
-        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles });
+        res.render('base', { title: 'Guild News', page: 'news', newsArticles });
     } catch (error) {
         console.error('Error fetching news articles:', error);
         res.status(500).send('Internal Server Error');
@@ -47,57 +55,56 @@ router.get('/admin/news', async (req, res) => {
 });
 
 // Add news article (admin)
-router.post('/admin/news/add', async (req, res) => {
+router.post('/admin/news/add', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
     const { title, content } = req.body;
-
     try {
         await db.query('INSERT INTO news_articles (title, content) VALUES (?, ?)', [title, content]);
-        res.redirect('/admin/news');
+        res.redirect('/admin');
     } catch (error) {
         console.error('Error adding news article:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
-// Delete news article (admin)
-router.post('/admin/news/delete/:id', async (req, res) => {
-    const articleId = req.params.id;
-
-    try {
-        await db.query('DELETE FROM news_articles WHERE id = ?', [articleId]);
-        res.redirect('/admin/news');
-    } catch (error) {
-        console.error('Error deleting news article:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
 // Edit news article (admin)
-router.post('/admin/news/edit/:id', async (req, res) => {
-    const articleId = req.params.id;
+router.post('/admin/news/edit/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
     const { title, content } = req.body;
-
+    const articleId = req.params.id;
     try {
-        await db.query('UPDATE news_articles SET title = ?, content = ?, updated_at = NOW() WHERE id = ?', [title, content, articleId]);
-        res.redirect('/admin/news');
+        await db.query('UPDATE news_articles SET title = ?, content = ? WHERE id = ?', [title, content, articleId]);
+        res.redirect('/admin');
     } catch (error) {
         console.error('Error updating news article:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
-// Contact page route
-router.get('/contact', (req, res) => {
-    res.render('base', { title: 'Contact - Tempest Guild', page: 'contact' });
+// Approve user (admin)
+router.post('/admin/users/approve/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
+    const userId = req.params.id;
+    try {
+        await db.query('UPDATE users SET status = ? WHERE id = ?', ['approved', userId]);
+        res.redirect('/admin');
+    } catch (error) {
+        console.error('Error approving user:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
-// Login page route
-router.get('/login', (req, res) => {
-    res.render('base', { title: 'Login - Tempest Guild', page: 'login' });
+// Deny user (admin)
+router.post('/admin/users/deny/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
+    const userId = req.params.id;
+    try {
+        await db.query('UPDATE users SET status = ? WHERE id = ?', ['denied', userId]);
+        res.redirect('/admin');
+    } catch (error) {
+        console.error('Error denying user:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 // Upload guild roster route
-router.post('/upload-roster', upload.single('rosterFile'), async (req, res) => {
+router.post('/upload-roster', isAuthenticated, isAdminOrGuildMaster, upload.single('rosterFile'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
@@ -123,17 +130,16 @@ router.post('/upload-roster', upload.single('rosterFile'), async (req, res) => {
 
             // Insert new characters into the database
             const insertPromises = characters.map(character => {
-                return db.query(
-                    'INSERT INTO unclaimed_characters (name, class, level) VALUES (?, ?, ?)',
-                    [character.name, character.class, character.level]
-                );
+                return db.query('INSERT INTO unclaimed_characters (name, class, level) VALUES (?, ?, ?)', [
+                    character.name,
+                    character.class,
+                    character.level,
+                ]);
             });
 
             await Promise.all(insertPromises);
 
             console.log('Guild Roster updated successfully');
-
-            // Delete the file after processing
             fs.unlink(filePath, (err) => {
                 if (err) {
                     console.error('Error deleting file:', err);
@@ -141,7 +147,6 @@ router.post('/upload-roster', upload.single('rosterFile'), async (req, res) => {
                 }
                 res.redirect('/admin');
             });
-
         } catch (parseError) {
             console.error('Error parsing Lua file:', parseError);
             res.status(500).send('Error parsing Lua file.');
@@ -150,7 +155,7 @@ router.post('/upload-roster', upload.single('rosterFile'), async (req, res) => {
 });
 
 // Upload guild bank data route
-router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
+router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single('bankFile'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
@@ -183,16 +188,12 @@ router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
                 return db.query(
                     'INSERT INTO guild_bank (name, type, count, rarity, subType, stats, source) VALUES (?, ?, ?, ?, ?, ?, ?)',
                     [item.name, item.type, item.count, item.rarity, item.subType || null, item.stats || null, item.source || null]
-                ).catch(dbError => {
-                    console.error(`Error inserting item ${item.name}:`, dbError);
-                });
+                );
             });
 
             await Promise.all(insertPromises);
 
             console.log('Guild Bank updated successfully');
-
-            // Delete the file after processing
             fs.unlink(filePath, (err) => {
                 if (err) {
                     console.error('Error deleting file:', err);
@@ -200,7 +201,6 @@ router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
                 }
                 res.redirect('/admin');
             });
-
         } catch (parseError) {
             console.error('Error parsing Lua file:', parseError);
             return res.status(500).send('Error parsing Lua file.');
@@ -208,37 +208,8 @@ router.post('/upload-bank', upload.single('bankFile'), async (req, res) => {
     });
 });
 
-// Register page route
-router.get('/register', (req, res) => {
-    res.render('base', { title: 'Register - Tempest Guild', page: 'register' });
-});
-
-// Login logic route
-router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-
-    try {
-        // Fetch user from the database by username
-        const [user] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
-
-        // Check if user exists and password matches
-        if (user && user.length > 0 && bcrypt.compareSync(password, user[0].password)) {
-            req.session.userId = user[0].id;  // Set user ID in session
-            res.redirect('/');  // Redirect after successful login
-        } else {
-            res.status(401).send('Invalid login credentials');  // Error for incorrect login
-        }
-    } catch (error) {
-        console.error('Error during login:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-
 // Guild roster page route
-router.get('/roster', async (req, res) => {
-    const userId = req.session?.userId || null;
-
+router.get('/roster', isAuthenticated, async (req, res) => {
     const [claimedCharacters] = await db.query(`
         SELECT c.name, c.class, c.level, u.username
         FROM characters c
@@ -252,12 +223,11 @@ router.get('/roster', async (req, res) => {
         page: 'roster',
         claimedCharacters,
         unclaimedCharacters,
-        userId
     });
 });
 
 // Guild bank page route
-router.get('/bank', async (req, res) => {
+router.get('/bank', isAuthenticated, async (req, res) => {
     try {
         const [allItems] = await db.query('SELECT * FROM guild_bank');
 
@@ -267,7 +237,7 @@ router.get('/bank', async (req, res) => {
             2: { name: 'Uncommon', class: 'rarity-uncommon' },
             3: { name: 'Rare', class: 'rarity-rare' },
             4: { name: 'Epic', class: 'rarity-epic' },
-            5: { name: 'Legendary', class: 'rarity-legendary' }
+            5: { name: 'Legendary', class: 'rarity-legendary' },
         };
 
         allItems.forEach(item => {
@@ -290,12 +260,16 @@ router.get('/bank', async (req, res) => {
             armorItems,
             consumableItems,
             materialItems,
-            bagItems
+            bagItems,
         });
     } catch (error) {
         console.error('Error fetching guild bank data:', error);
         res.status(500).send('Internal Server Error');
     }
+});
+
+router.get('/contact', (req, res) => {
+    res.render('base', { title: 'Contact Us - Tempest Guild', page: 'contact' });
 });
 
 module.exports = router;
