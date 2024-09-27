@@ -18,17 +18,24 @@
                         <div class="form-group">
                             <label for="password">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
-                            <small class="form-text text-muted">Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character.</small>
+                            <small class="form-text text-muted">Password must be at least 8 characters long, contain one
+                                uppercase letter, one number, and one special character.</small>
                             <div class="invalid-feedback" id="password-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm-password" name="confirmPassword"
+                                required>
+                            <div class="invalid-feedback" id="confirm-password-error"></div>
                         </div>
                         <div class="form-group">
                             <label for="character-name">Character Name</label>
                             <input type="text" class="form-control" id="character-name" name="character-name" required>
+                            <div class="invalid-feedback" id="character-error"></div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block mt-4">Register</button>
                     </form>
-                    <p class="text-center mt-3">
-                        Already have an account? <a href="/login" class="text-primary">Login</a>
+                    <p class="text-center mt-3">Already have an account? <a href="/login" class="text-primary">Login</a>
                     </p>
                 </div>
             </div>
@@ -36,53 +43,69 @@
     </div>
 </div>
 
-<!-- JavaScript for Client-Side Validation -->
 <script>
-    document.getElementById('register-form').addEventListener('submit', function(event) {
-        // Prevent form submission until validation passes
-        event.preventDefault();
+    document.getElementById('register-form').addEventListener('submit', async function (event) {
+        event.preventDefault();  // Prevent form submission to check validation first
 
-        // Reset errors
-        document.querySelectorAll('.invalid-feedback').forEach(function(el) {
+        // Reset previous error messages
+        document.querySelectorAll('.invalid-feedback').forEach(function (el) {
             el.textContent = '';
+            el.style.display = 'none';  // Hide previous error messages
         });
-        
+
         let hasError = false;
 
-        // Username validation (ensure it's not already taken)
-        const username = document.getElementById('username').value;
-        // Example AJAX check for existing username (pseudo-code, replace with actual server-side logic)
-        // If username exists, show error
-        if (username === 'existingUsername') { // Replace this condition with actual server-side logic
-            document.getElementById('username-error').textContent = 'Username is already taken.';
-            hasError = true;
-        }
+        // Get password values and trim them (in case of accidental spaces)
+        const password = document.getElementById('password').value.trim();
+        const confirmPassword = document.getElementById('confirm-password').value.trim();
 
-        // Email validation
-        const email = document.getElementById('email').value;
-        const emailPattern = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-        if (!emailPattern.test(email)) {
-            document.getElementById('email-error').textContent = 'Please enter a valid email address.';
-            hasError = true;
-        }
-
-        // Example AJAX check for existing email (pseudo-code)
-        if (email === 'existingEmail@example.com') { // Replace this condition with actual server-side logic
-            document.getElementById('email-error').textContent = 'Email is already registered.';
-            hasError = true;
-        }
-
-        // Password validation (at least 8 characters, 1 uppercase, 1 number, 1 special character)
-        const password = document.getElementById('password').value;
+        // Password validation regex
         const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+
+        // Validate password criteria
         if (!passwordPattern.test(password)) {
             document.getElementById('password-error').textContent = 'Password must meet the criteria.';
+            document.getElementById('password-error').style.display = 'block';
+            hasError = true;
+        }
+
+        // Validate that passwords match
+        if (password !== confirmPassword) {
+            document.getElementById('confirm-password-error').textContent = 'Passwords do not match.';
+            document.getElementById('confirm-password-error').style.display = 'block';
+            hasError = true;
+        }
+
+        // Character validation (real server-side check)
+        const characterName = document.getElementById('character-name').value.trim();
+        const characterExists = await checkCharacterExists(characterName);
+        if (!characterExists) {
+            document.getElementById('character-error').textContent = 'Character not found in unclaimed characters.';
+            document.getElementById('character-error').style.display = 'block';
             hasError = true;
         }
 
         // If there are no errors, submit the form
         if (!hasError) {
-            this.submit();
+            console.log('Form is valid, submitting...');
+            document.getElementById('register-form').submit();  // Submit the form if no errors were found
+        } else {
+            console.log('Form has errors, not submitting.');
         }
     });
+
+
+    // Function to check character existence
+    async function checkCharacterExists(characterName) {
+        try {
+            const response = await fetch(`/check-character?name=${encodeURIComponent(characterName)}`);
+            const data = await response.json();
+            return data.exists;
+        } catch (error) {
+            console.error('Error checking character:', error);
+            return false;
+        }
+
+    }
+
 </script>

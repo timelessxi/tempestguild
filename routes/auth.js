@@ -1,12 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const db = require('../config/db'); // Make sure this points to your database configuration
+const db = require('../config/db');
+const { moveCharacterToUser } = require('../utils/characterUtils');
 
 // Login Page
 router.get('/login', (req, res) => {
     res.render('base', { title: 'Login - Tempest Guild', page: 'login' });
 });
+
+router.get('/check-character', async (req, res) => {
+    const { name } = req.query;
+
+    try {
+        const [character] = await db.query('SELECT * FROM unclaimed_characters WHERE name = ?', [name]);
+        if (character && character.length > 0) {
+            return res.json({ exists: true });  // Character exists
+        } else {
+            return res.json({ exists: false }); // Character not found
+        }
+    } catch (error) {
+        console.error('Error checking character:', error);
+        res.status(500).json({ exists: false }); // Handle server error
+    }
+});
+
 
 // Handle Login Logic
 router.post('/login', async (req, res) => {
@@ -40,19 +58,24 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Registration Page
+// Register Page
 router.get('/register', (req, res) => {
     res.render('base', { title: 'Register - Tempest Guild', page: 'register' });
 });
 
-// Handle Registration Logic
+// Handle Register Logic
 router.post('/register', async (req, res) => {
-    const { username, password, email, bio } = req.body;
+    const { username, password, confirmPassword, email, bio } = req.body;
+    const character_name = req.body['character-name'];
 
     try {
+        // Validate that passwords match
+        if (password !== confirmPassword) {
+            return res.status(400).send('Passwords do not match');
+        }
+
         // Check if the user already exists
         const [existingUser] = await db.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, email]);
-
         if (existingUser.length > 0) {
             return res.status(400).send('Username or email already exists');
         }
@@ -61,22 +84,32 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 12);
 
         // Insert the new user with 'pending' status
-        await db.query('INSERT INTO users (username, password, email, bio, status) VALUES (?, ?, ?, ?, ?)', [
-            username, 
-            hashedPassword, 
-            email, 
-            bio || null, 
+        const [userResult] = await db.query('INSERT INTO users (username, password, email, bio, status) VALUES (?, ?, ?, ?, ?)', [
+            username,
+            hashedPassword,
+            email,
+            bio || null,
             'pending'
         ]);
 
+        const userId = userResult.insertId;  // Get the newly inserted user's ID
+
+        // Use the reusable function to move the character
+        const moveResult = await moveCharacterToUser(userId, character_name);
+        if (!moveResult.success) {
+            return res.status(400).send(moveResult.message); // Handle errors related to moving the character
+        }
+
         // Send them to a "registration pending" page
         res.render('base', { title: 'Registration Pending', page: 'pending_approval' });
+
     } catch (error) {
         console.error('Error during registration:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
+// Logout Route
 router.get('/logout', (req, res) => {
     // Check if session exists
     if (req.session) {
@@ -95,5 +128,27 @@ router.get('/logout', (req, res) => {
     }
 });
 
+// Function to move a character to a user
+router.post('/claim-character', async (req, res) => {
+    const { character_name } = req.body;
+    const userId = req.session.userId;  // Get the logged-in user's ID from the session
+
+    if (!userId) {
+        return res.status(401).send('You must be logged in to claim a character');
+    }
+
+    try {
+        // Use the reusable function to move the character
+        const moveResult = await moveCharacterToUser(userId, character_name);
+        if (!moveResult.success) {
+            return res.status(400).send(moveResult.message); // Handle errors related to moving the character
+        }
+
+        res.send('Character claimed successfully');
+    } catch (error) {
+        console.error('Error claiming character:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 module.exports = router;
