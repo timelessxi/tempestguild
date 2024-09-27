@@ -78,13 +78,21 @@ router.post('/register', async (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error logging out:', err);
-            return res.status(500).send('Error logging out');
-        }
-        res.redirect('/');
-    });
+    // Check if session exists
+    if (req.session) {
+        console.log('Logging out user:', req.session.username); // Log username before destroying session
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Error logging out:', err);
+                return res.status(500).send('Error logging out');
+            } else {
+                res.redirect('/');
+            }
+        });
+    } else {
+        console.log('No session found');
+        res.redirect('/'); // Redirect even if no session exists
+    }
 });
 
 
