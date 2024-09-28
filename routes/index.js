@@ -5,6 +5,7 @@ const fs = require('fs');
 const multer = require('multer');
 const db = require('../config/db');
 const { extractBankItemsFromLuaString, extractCharactersFromLuaString } = require('../utils/luaParser');
+const { moveCharacterToUser } = require('../utils/characterUtils');
 
 // File upload destination
 const upload = multer({ dest: 'uploads/' });
@@ -79,11 +80,29 @@ router.post('/admin/news/edit/:id', isAuthenticated, isAdminOrGuildMaster, async
     }
 });
 
-// Approve user (admin)
 router.post('/admin/users/approve/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
     const userId = req.params.id;
+
     try {
-        await db.query('UPDATE users SET status = ? WHERE id = ?', ['approved', userId]);
+        // Fetch the user and their claimed character
+        const [user] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+        if (!user || user.length === 0) {
+            return res.status(400).send('User not found');
+        }
+
+        const claimedCharacter = user[0].claimed_character_name;
+
+        if (claimedCharacter) {
+            // Claim the character using the reusable function
+            const moveResult = await moveCharacterToUser(userId, claimedCharacter);
+            if (!moveResult.success) {
+                return res.status(400).send(moveResult.message); // Handle errors related to moving the character
+            }
+        }
+
+        // Approve the user and update their status
+        await db.query('UPDATE users SET status = ?, claimed_character_name = NULL WHERE id = ?', ['approved', userId]);
+
         res.redirect('/admin');
     } catch (error) {
         console.error('Error approving user:', error);
@@ -103,7 +122,6 @@ router.post('/admin/users/deny/:id', isAuthenticated, isAdminOrGuildMaster, asyn
     }
 });
 
-// Upload guild roster route
 router.post('/upload-roster', isAuthenticated, isAdminOrGuildMaster, upload.single('rosterFile'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
@@ -125,19 +143,55 @@ router.post('/upload-roster', isAuthenticated, isAdminOrGuildMaster, upload.sing
                 return res.status(400).send('No characters found in the file.');
             }
 
-            // Clear the unclaimed_characters table
-            await db.query('TRUNCATE TABLE unclaimed_characters');
+            // Fetch all unclaimed characters from the database
+            const [existingCharacters] = await db.query('SELECT id, user_id, guild_id, name, class, level FROM characters WHERE status = "unclaimed"');
+            const existingCharacterNames = existingCharacters.map(character => character.name);
 
-            // Insert new characters into the database
-            const insertPromises = characters.map(character => {
-                return db.query('INSERT INTO unclaimed_characters (name, class, level) VALUES (?, ?, ?)', [
+            // Update or Insert Characters
+            const updatePromises = characters.map(async character => {
+                if (existingCharacterNames.includes(character.name)) {
+                    // Character exists, update level if necessary
+                    const existingCharacter = existingCharacters.find(c => c.name === character.name);
+                    if (existingCharacter.level !== character.level) {
+                        await db.query('UPDATE characters SET level = ?, updated_at = CURRENT_TIMESTAMP WHERE name = ?', [character.level, character.name]);
+                        console.log(`Updated character ${character.name} to level ${character.level}`);
+                    }
+                } else {
+                    // Character does not exist, insert new
+                    await db.query('INSERT INTO characters (name, class, level, guild_id, status) VALUES (?, ?, ?, ?, ?)', [
+                        character.name,
+                        character.class,
+                        character.level,
+                        1,  // Assuming guild_id is 1
+                        'unclaimed'
+                    ]);
+                    console.log(`Inserted new character ${character.name}`);
+                }
+            });
+
+            await Promise.all(updatePromises);
+
+            // Move characters that are no longer in the upload file to the dead_characters table
+            const uploadedCharacterNames = characters.map(character => character.name);
+            const charactersToRemove = existingCharacters.filter(c => !uploadedCharacterNames.includes(c.name));
+
+            const removePromises = charactersToRemove.map(async character => {
+                // Move to dead_characters table with user_id and guild_id if the character was claimed
+                await db.query('INSERT INTO dead_characters (name, class, level, user_id, guild_id) VALUES (?, ?, ?, ?, ?)', [
                     character.name,
                     character.class,
                     character.level,
+                    character.user_id || null, // Store user_id if it was claimed
+                    character.guild_id || 1    // Assuming guild_id is 1 by default
                 ]);
+
+                // Remove from characters table
+                await db.query('DELETE FROM characters WHERE name = ?', [character.name]);
+
+                console.log(`Moved character ${character.name} to dead_characters table`);
             });
 
-            await Promise.all(insertPromises);
+            await Promise.all(removePromises);
 
             console.log('Guild Roster updated successfully');
             fs.unlink(filePath, (err) => {
@@ -147,6 +201,7 @@ router.post('/upload-roster', isAuthenticated, isAdminOrGuildMaster, upload.sing
                 }
                 res.redirect('/admin');
             });
+
         } catch (parseError) {
             console.error('Error parsing Lua file:', parseError);
             res.status(500).send('Error parsing Lua file.');
@@ -210,20 +265,33 @@ router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single
 
 // Guild roster page route
 router.get('/roster', isAuthenticated, async (req, res) => {
-    const [claimedCharacters] = await db.query(`
-        SELECT c.name, c.class, c.level, u.username
-        FROM characters c
-        JOIN users u ON c.user_id = u.id
-    `);
+    try {
+        // Fetch claimed characters (those with a user_id)
+        const [claimedCharacters] = await db.query(`
+            SELECT c.name, c.class, c.level, u.username
+            FROM characters c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.status = 'claimed'
+        `);
 
-    const [unclaimedCharacters] = await db.query('SELECT * FROM unclaimed_characters');
+        // Fetch unclaimed characters (those without a user_id)
+        const [unclaimedCharacters] = await db.query(`
+            SELECT name, class, level 
+            FROM characters 
+            WHERE status = 'unclaimed'
+        `);
 
-    res.render('base', {
-        title: 'Guild Roster - Tempest Guild',
-        page: 'roster',
-        claimedCharacters,
-        unclaimedCharacters,
-    });
+        // Render the roster page with claimed and unclaimed characters
+        res.render('base', {
+            title: 'Guild Roster - Tempest Guild',
+            page: 'roster',
+            claimedCharacters,
+            unclaimedCharacters,
+        });
+    } catch (error) {
+        console.error('Error fetching roster:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 // Guild bank page route

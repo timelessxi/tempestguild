@@ -63,7 +63,6 @@ router.get('/register', (req, res) => {
     res.render('base', { title: 'Register - Tempest Guild', page: 'register' });
 });
 
-// Handle Register Logic
 router.post('/register', async (req, res) => {
     const { username, password, confirmPassword, email, bio } = req.body;
     const character_name = req.body['character-name'];
@@ -80,27 +79,25 @@ router.post('/register', async (req, res) => {
             return res.status(400).send('Username or email already exists');
         }
 
+        // Check if the character exists in the unclaimed_characters table
+        const [character] = await db.query('SELECT * FROM unclaimed_characters WHERE name = ?', [character_name]);
+        if (!character || character.length === 0) {
+            return res.status(400).send('Character not found in unclaimed characters');
+        }
+
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // Insert the new user with 'pending' status
-        const [userResult] = await db.query('INSERT INTO users (username, password, email, bio, status) VALUES (?, ?, ?, ?, ?)', [
+        // Insert the new user with 'pending' status and store the character in the claimed_character_name column
+        await db.query('INSERT INTO users (username, password, email, bio, status, claimed_character_name) VALUES (?, ?, ?, ?, ?, ?)', [
             username,
             hashedPassword,
             email,
             bio || null,
-            'pending'
+            'pending',
+            character_name
         ]);
 
-        const userId = userResult.insertId;  // Get the newly inserted user's ID
-
-        // Use the reusable function to move the character
-        const moveResult = await moveCharacterToUser(userId, character_name);
-        if (!moveResult.success) {
-            return res.status(400).send(moveResult.message); // Handle errors related to moving the character
-        }
-
-        // Send them to a "registration pending" page
         res.render('base', { title: 'Registration Pending', page: 'pending_approval' });
 
     } catch (error) {
