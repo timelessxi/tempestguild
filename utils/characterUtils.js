@@ -2,23 +2,18 @@ const db = require('../config/db'); // Ensure this points to your database confi
 
 async function moveCharacterToUser(userId, characterName) {
     try {
-        // Check if the character exists in the unclaimed_characters table
-        const [character] = await db.query('SELECT * FROM unclaimed_characters WHERE name = ?', [characterName]);
+        // Check if the character exists in the characters table with 'unclaimed' status
+        const [character] = await db.query('SELECT * FROM characters WHERE name = ? AND status = ?', [characterName, 'unclaimed']);
         if (!character || character.length === 0) {
-            return { success: false, message: 'Character not found in unclaimed characters' };
+            return { success: false, message: 'Character not found or already claimed' };
         }
 
-        // Insert the character into the characters table, linking it to the user
-        await db.query('INSERT INTO characters (user_id, guild_id, name, class, level) VALUES (?, ?, ?, ?, ?)', [
+        // Update the character, linking it to the user and changing its status to 'claimed'
+        await db.query('UPDATE characters SET user_id = ?, status = ? WHERE id = ?', [
             userId,
-            1,  // Assuming '1' is the guild_id for Tempest, adjust this as necessary
-            character[0].name,
-            character[0].class,
-            character[0].level
+            'claimed',
+            character[0].id
         ]);
-
-        // Remove the character from the unclaimed_characters table
-        await db.query('DELETE FROM unclaimed_characters WHERE name = ?', [characterName]);
 
         return { success: true, message: 'Character moved successfully' };
 

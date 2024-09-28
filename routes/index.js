@@ -36,8 +36,9 @@ router.get('/admin', isAuthenticated, isAdminOrGuildMaster, async (req, res) => 
     try {
         const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
         const [pendingUsers] = await db.query('SELECT * FROM users WHERE status = ?', ['pending']);
+        const [roles] = await db.query('SELECT * FROM roles');
 
-        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles, pendingUsers });
+        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles, pendingUsers, roles });
     } catch (error) {
         console.error('Error fetching admin data:', error);
         res.status(500).send('Internal Server Error');
@@ -82,6 +83,7 @@ router.post('/admin/news/edit/:id', isAuthenticated, isAdminOrGuildMaster, async
 
 router.post('/admin/users/approve/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
     const userId = req.params.id;
+    const { role_id } = req.body;  // Get the role from the form submission
 
     try {
         // Fetch the user and their claimed character
@@ -90,7 +92,7 @@ router.post('/admin/users/approve/:id', isAuthenticated, isAdminOrGuildMaster, a
             return res.status(400).send('User not found');
         }
 
-        const claimedCharacter = user[0].claimed_character_name;
+        const claimedCharacter = user[0].main_character;
 
         if (claimedCharacter) {
             // Claim the character using the reusable function
@@ -100,8 +102,8 @@ router.post('/admin/users/approve/:id', isAuthenticated, isAdminOrGuildMaster, a
             }
         }
 
-        // Approve the user and update their status
-        await db.query('UPDATE users SET status = ?, claimed_character_name = NULL WHERE id = ?', ['approved', userId]);
+        // Approve the user, set the role, and update their status
+        await db.query('UPDATE users SET status = ?, role_id = ?, main_character = NULL WHERE id = ?', ['approved', role_id, userId]);
 
         res.redirect('/admin');
     } catch (error) {

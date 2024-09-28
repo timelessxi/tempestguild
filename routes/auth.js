@@ -13,17 +13,19 @@ router.get('/check-character', async (req, res) => {
     const { name } = req.query;
 
     try {
-        const [character] = await db.query('SELECT * FROM unclaimed_characters WHERE name = ?', [name]);
+        // Check if the character exists in the characters table with 'unclaimed' status
+        const [character] = await db.query('SELECT * FROM characters WHERE name = ? AND status = ?', [name, 'unclaimed']);
         if (character && character.length > 0) {
-            return res.json({ exists: true });  // Character exists
+            return res.json({ exists: true });  // Character exists and is unclaimed
         } else {
-            return res.json({ exists: false }); // Character not found
+            return res.json({ exists: false }); // Character not found or already claimed
         }
     } catch (error) {
         console.error('Error checking character:', error);
         res.status(500).json({ exists: false }); // Handle server error
     }
 });
+
 
 
 // Handle Login Logic
@@ -79,17 +81,17 @@ router.post('/register', async (req, res) => {
             return res.status(400).send('Username or email already exists');
         }
 
-        // Check if the character exists in the unclaimed_characters table
-        const [character] = await db.query('SELECT * FROM unclaimed_characters WHERE name = ?', [character_name]);
+        // Check if the character exists in the characters table with 'unclaimed' status
+        const [character] = await db.query('SELECT * FROM characters WHERE name = ? AND status = ?', [character_name, 'unclaimed']);
         if (!character || character.length === 0) {
-            return res.status(400).send('Character not found in unclaimed characters');
+            return res.status(400).send('Character not found or already claimed');
         }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // Insert the new user with 'pending' status and store the character in the claimed_character_name column
-        await db.query('INSERT INTO users (username, password, email, bio, status, claimed_character_name) VALUES (?, ?, ?, ?, ?, ?)', [
+        // Insert the new user with 'pending' status
+        const result = await db.query('INSERT INTO users (username, password, email, bio, status, main_character) VALUES (?, ?, ?, ?, ?, ?)', [
             username,
             hashedPassword,
             email,
@@ -98,6 +100,8 @@ router.post('/register', async (req, res) => {
             character_name
         ]);
 
+        const userId = result.insertId;  // Get the newly inserted user's ID
+
         res.render('base', { title: 'Registration Pending', page: 'pending_approval' });
 
     } catch (error) {
@@ -105,6 +109,7 @@ router.post('/register', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Logout Route
 router.get('/logout', (req, res) => {
