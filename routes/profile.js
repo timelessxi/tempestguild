@@ -73,4 +73,52 @@ router.post('/:id/update-profession', async (req, res) => {
     }
 });
 
+// GET route to display the edit profile form
+router.get('/:id/edit', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        // Fetch user data from the database
+        const [user] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+
+        if (!user || user.length === 0) {
+            return res.status(404).send('User not found');
+        }
+
+        // Ensure only the logged-in user can edit their own profile
+        if (req.session.userId !== parseInt(userId)) {
+            return res.status(403).send('You are not authorized to edit this profile.');
+        }
+
+        // Render the edit profile form
+        res.render('base', { page: 'editProfile', title: 'Edit Profile', user: user[0], loggedInUserId: req.session.userId });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// POST route to handle the form submission and update the profile
+router.post('/:id/edit', async (req, res) => {
+    const userId = req.params.id;
+    const { email, bio } = req.body;
+
+    try {
+        // Ensure only the logged-in user can update their own profile
+        if (req.session.userId !== parseInt(userId)) {
+            return res.status(403).send('You are not authorized to update this profile.');
+        }
+
+        // Update the user's email and bio in the database
+        await db.query('UPDATE users SET email = ?, bio = ? WHERE id = ?', [email, bio, userId]);
+
+        // Redirect back to the user profile after successful update
+        res.redirect(`/profile/${userId}`);
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 module.exports = router;
