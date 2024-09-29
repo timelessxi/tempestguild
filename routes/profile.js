@@ -11,22 +11,28 @@ router.get('/:id', async (req, res) => {
         const [user] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
         const [characters] = await db.query('SELECT * FROM characters WHERE user_id = ?', [userId]);
         const [professions] = await db.query(`
-            SELECT cp.profession_level, p.name 
+            SELECT cp.profession_level, p.name, cp.character_id 
             FROM character_professions cp
             JOIN professions p ON cp.profession_id = p.id
             WHERE cp.character_id IN (SELECT id FROM characters WHERE user_id = ?)
         `, [userId]);
 
+        // Fetch the list of available professions
+        const [availableProfessions] = await db.query('SELECT * FROM professions');
+
         if (!user || user.length === 0) {
             return res.status(404).send('User not found');
         }
 
+        // Pass the logged-in user's ID to the template
         res.render('base', {
             title: `${user[0].username}'s Profile`,
             page: 'profile',
             user: user[0],
             characters,
-            professions
+            professions,
+            availableProfessions,  // Pass available professions to the template
+            loggedInUserId: req.session.userId // Pass the session userId
         });
     } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -34,34 +40,35 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Edit user profile
-router.get('/:id/edit', async (req, res) => {
+
+router.post('/:id/update-profession', async (req, res) => {
     const userId = req.params.id;
+    const { character_id, profession_id, profession_level } = req.body;
+
+    if (profession_level < 1 || profession_level > 300) {
+        return res.status(400).send('Profession level must be between 1 and 300');
+    }
 
     try {
-        const [user] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+        // Check if the profession already exists for the character
+        const [existingProfession] = await db.query(
+            'SELECT * FROM character_professions WHERE character_id = ? AND profession_id = ?', 
+            [character_id, profession_id]
+        );
 
-        if (!user || user.length === 0) {
-            return res.status(404).send('User not found');
+        if (existingProfession.length > 0) {
+            // Update the profession level if it exists
+            await db.query('UPDATE character_professions SET profession_level = ? WHERE character_id = ? AND profession_id = ?', 
+                           [profession_level, character_id, profession_id]);
+        } else {
+            // Insert new profession if it does not exist
+            await db.query('INSERT INTO character_professions (character_id, profession_id, profession_level) VALUES (?, ?, ?)', 
+                           [character_id, profession_id, profession_level]);
         }
 
-        res.render('base', { title: 'Edit Profile', page: 'edit_profile', user: user[0] });
+        res.redirect(`/profile/${userId}`);
     } catch (error) {
-        console.error('Error fetching user data for edit:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-// Update user profile
-router.post('/:id/edit', async (req, res) => {
-    const userId = req.params.id;
-    const { username, email, bio } = req.body;
-
-    try {
-        await db.query('UPDATE users SET username = ?, email = ?, bio = ? WHERE id = ?', [username, email, bio, userId]);
-        res.redirect(`/user/${userId}`);
-    } catch (error) {
-        console.error('Error updating profile:', error);
+        console.error('Error updating profession:', error);
         res.status(500).send('Internal Server Error');
     }
 });
