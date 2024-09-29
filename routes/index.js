@@ -267,26 +267,62 @@ router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single
 
 router.get('/roster', isAuthenticated, async (req, res) => {
     try {
-        // Fetch all characters with left join to get user information if claimed
-        const [characters] = await db.query(`
-            SELECT c.id, c.name, c.class, c.level, c.user_id, u.username
-            FROM characters c
-            LEFT JOIN users u ON c.user_id = u.id
+        // Fetch claimed users with their claimed characters
+        const [claimedUsers] = await db.query(`
+            SELECT u.id AS user_id, u.username, u.email, u.profile_image, u.bio, c.name AS character_name, c.class, c.level
+            FROM users u
+            JOIN characters c ON u.id = c.user_id
+            WHERE c.status = 'claimed'
+            ORDER BY u.username
         `);
 
-        // Render the roster page with all characters
+        // Group characters by users
+        const users = {};
+        claimedUsers.forEach(row => {
+            if (!users[row.user_id]) {
+                users[row.user_id] = {
+                    id: row.user_id,
+                    username: row.username,
+                    email: row.email,
+                    profile_image: row.profile_image,
+                    bio: row.bio,
+                    characters: []
+                };
+            }
+            users[row.user_id].characters.push({
+                name: row.character_name,
+                class: row.class,
+                level: row.level
+            });
+        });
+
+        // Sort characters by level for each user
+        Object.keys(users).forEach(userId => {
+            users[userId].characters.sort((a, b) => b.level - a.level); // Sort by level descending
+        });
+
+        // Convert the object to an array
+        const claimedUsersArray = Object.values(users);
+
+        // Fetch unclaimed characters (characters not linked to any user)
+        const [unclaimedCharacters] = await db.query(`
+            SELECT id, name, class, level
+            FROM characters
+            WHERE status = 'unclaimed'
+        `);
+
+        // Render the roster page with claimed users and unclaimed characters
         res.render('base', {
             title: 'Guild Roster - Tempest Guild',
             page: 'roster',
-            characters,
-            userId: req.session.userId  // Pass current user's ID to the template
+            claimedUsers: claimedUsersArray,
+            unclaimedCharacters
         });
     } catch (error) {
         console.error('Error fetching roster:', error);
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 // Guild bank page route
 router.get('/bank', isAuthenticated, async (req, res) => {

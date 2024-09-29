@@ -1,29 +1,125 @@
 <div class="container">
     <h1 class="text-center my-4">Guild Roster</h1>
 
-    <div class="row">
-        <% characters.forEach(character => { %>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title"><%= character.name %></h5>
-                        <p class="card-text">
-                            <strong>Class:</strong> <%= character.class %><br>
-                            <strong>Level:</strong> <%= character.level %>
-                        </p>
-                        <% if (character.user_id) { %>
-                            <!-- If character is claimed, link to user profile -->
-                            <a href="/profile/<%= character.user_id %>" class="btn btn-info">View Profile</a>
-                        <% } else { %>
-                            <!-- If character is unclaimed, show claim button -->
-                            <form action="/claim-character" method="POST" onsubmit="return confirm('Are you sure you want to claim this character?');">
-                                <input type="hidden" name="characterId" value="<%= character.id %>">
-                                <button type="submit" class="btn btn-primary">Claim</button>
-                            </form>
-                        <% } %>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" id="rosterTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="claimed-tab" data-toggle="tab" href="#claimed" role="tab" aria-controls="claimed" aria-selected="true">Active Profiles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="unclaimed-tab" data-toggle="tab" href="#unclaimed" role="tab" aria-controls="unclaimed" aria-selected="false">Unclaimed Characters</a>
+        </li>
+    </ul>
+
+    <!-- Tab content -->
+    <div class="tab-content mt-4" id="rosterTabContent">
+        <!-- Claimed Characters Tab -->
+        <div class="tab-pane fade show active" id="claimed" role="tabpanel" aria-labelledby="claimed-tab">
+            <div class="row">
+                <% claimedUsers.forEach(user => { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 bg-dark text-white shadow-sm">
+                            <div class="card-header text-center">
+                                <!-- User Profile Image -->
+                                <img src="<%= user.profile_image || '/images/default-profile.png' %>" alt="<%= user.username %>'s Profile" class="img-fluid rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;">
+                                <h5 class="card-title mt-3 text-light"><%= user.username %></h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text text-center mb-4">
+                                    <strong>Bio:</strong> <%= user.bio || 'No bio provided' %>
+                                </p>
+                                <!-- List of Claimed Characters -->
+                                <h6 class="text-center text-warning">Characters</h6>
+                                <ul class="list-group mb-3">
+                                    <% user.characters.forEach(character => { %>
+                                        <li class="list-group-item bg-dark text-light border-light">
+                                            <strong><%= character.name %></strong>
+                                            <span class="badge badge-warning float-right">Level <%= character.level %></span><br>
+                                            <small><%= character.class %></small>
+                                        </li>
+                                    <% }) %>
+                                </ul>
+                                <a href="/profile/<%= user.id %>" class="btn btn-warning btn-block">View Profile</a>
+                            </div>
+                        </div>
                     </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <!-- Unclaimed Characters Tab -->
+        <div class="tab-pane fade" id="unclaimed" role="tabpanel" aria-labelledby="unclaimed-tab">
+            <!-- Search and Filter bar -->
+            <div class="row mb-4">
+                <div class="col-md-6 mx-auto">
+                    <input type="text" id="unclaimedSearch" class="form-control" placeholder="Search for a character name...">
+                </div>
+                <div class="col-md-4 mx-auto">
+                    <select id="levelRangeFilter" class="form-control">
+                        <option value="all" selected>All Levels</option>
+                        <option value="10-20">Level 10-20</option>
+                        <option value="21-30">Level 21-30</option>
+                        <option value="31-40">Level 31-40</option>
+                        <option value="41-50">Level 41-50</option>
+                        <option value="51-59">Level 51-59</option>
+                        <option value="60-60">Level 60</option>
+                    </select>
                 </div>
             </div>
-        <% }) %>
+
+            <div class="row" id="unclaimedCharacterList">
+                <% unclaimedCharacters.forEach(character => { %>
+                    <div class="col-md-4 mb-4 character-card" data-level="<%= character.level %>">
+                        <div class="card h-100 bg-dark text-white shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-light"><%= character.name %></h5>
+                                <p class="card-text">
+                                    <strong>Class:</strong> <%= character.class %><br>
+                                    <strong>Level:</strong> <%= character.level %>
+                                </p>
+                                <!-- Claim button -->
+                                <div class="d-flex justify-content-center">
+                                    <form action="/claim-character" method="POST" onsubmit="return confirm('Are you sure you want to claim this character?');">
+                                        <input type="hidden" name="characterId" value="<%= character.id %>">
+                                        <button type="submit" class="btn btn-warning btn-block">Claim</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- JavaScript for search and filter functionality -->
+<script>
+    document.getElementById('unclaimedSearch').addEventListener('keyup', filterCharacters);
+    document.getElementById('levelRangeFilter').addEventListener('change', filterCharacters);
+
+    function filterCharacters() {
+        const searchValue = document.getElementById('unclaimedSearch').value.toLowerCase();
+        const levelRange = document.getElementById('levelRangeFilter').value;
+        const characterCards = document.querySelectorAll('#unclaimedCharacterList .character-card');
+
+        characterCards.forEach(function(card) {
+            const characterName = card.querySelector('.card-title').textContent.toLowerCase();
+            const characterLevel = parseInt(card.getAttribute('data-level'));
+
+            let matchesSearch = characterName.includes(searchValue);
+            let matchesLevel = levelRange === 'all';
+
+            if (!matchesLevel) {
+                const [minLevel, maxLevel] = levelRange.split('-').map(Number);
+                matchesLevel = characterLevel >= minLevel && characterLevel <= maxLevel;
+            }
+
+            if (matchesSearch && matchesLevel) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
