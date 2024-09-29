@@ -145,8 +145,8 @@ router.post('/upload-roster', isAuthenticated, isAdminOrGuildMaster, upload.sing
                 return res.status(400).send('No characters found in the file.');
             }
 
-            // Fetch all unclaimed characters from the database
-            const [existingCharacters] = await db.query('SELECT id, user_id, guild_id, name, class, level FROM characters WHERE status = "unclaimed"');
+            // Fetch all characters (both claimed and unclaimed) from the database
+            const [existingCharacters] = await db.query('SELECT id, user_id, guild_id, name, class, level FROM characters');
             const existingCharacterNames = existingCharacters.map(character => character.name);
 
             // Update or Insert Characters
