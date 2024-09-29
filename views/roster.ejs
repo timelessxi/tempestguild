@@ -1,22 +1,16 @@
 <div class="container">
     <h1 class="text-center my-4">Guild Roster</h1>
 
-    <table class="table table-dark table-hover">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Class</th>
-                <th>Level</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% characters.forEach(character => { %>
-                <tr>
-                    <td><%= character.name %></td>
-                    <td><%= character.class %></td>
-                    <td><%= character.level %></td>
-                    <td>
+    <div class="row">
+        <% characters.forEach(character => { %>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= character.name %></h5>
+                        <p class="card-text">
+                            <strong>Class:</strong> <%= character.class %><br>
+                            <strong>Level:</strong> <%= character.level %>
+                        </p>
                         <% if (character.user_id) { %>
                             <!-- If character is claimed, link to user profile -->
                             <a href="/profile/<%= character.user_id %>" class="btn btn-info">View Profile</a>
@@ -27,9 +21,9 @@
                                 <button type="submit" class="btn btn-primary">Claim</button>
                             </form>
                         <% } %>
-                    </td>
-                </tr>
-            <% }) %>
-        </tbody>
-    </table>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
 </div>
