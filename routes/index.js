@@ -265,36 +265,28 @@ router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single
     });
 });
 
-// Guild roster page route
 router.get('/roster', isAuthenticated, async (req, res) => {
     try {
-        // Fetch claimed characters (those with a user_id)
-        const [claimedCharacters] = await db.query(`
-            SELECT c.name, c.class, c.level, u.username
+        // Fetch all characters with left join to get user information if claimed
+        const [characters] = await db.query(`
+            SELECT c.id, c.name, c.class, c.level, c.user_id, u.username
             FROM characters c
-            JOIN users u ON c.user_id = u.id
-            WHERE c.status = 'claimed'
+            LEFT JOIN users u ON c.user_id = u.id
         `);
 
-        // Fetch unclaimed characters (those without a user_id)
-        const [unclaimedCharacters] = await db.query(`
-            SELECT name, class, level 
-            FROM characters 
-            WHERE status = 'unclaimed'
-        `);
-
-        // Render the roster page with claimed and unclaimed characters
+        // Render the roster page with all characters
         res.render('base', {
             title: 'Guild Roster - Tempest Guild',
             page: 'roster',
-            claimedCharacters,
-            unclaimedCharacters,
+            characters,
+            userId: req.session.userId  // Pass current user's ID to the template
         });
     } catch (error) {
         console.error('Error fetching roster:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Guild bank page route
 router.get('/bank', isAuthenticated, async (req, res) => {

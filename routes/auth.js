@@ -110,29 +110,22 @@ router.post('/register', async (req, res) => {
     }
 });
 
-
-// Logout Route
 router.get('/logout', (req, res) => {
-    // Check if session exists
     if (req.session) {
-        console.log('Logging out user:', req.session.username); // Log username before destroying session
         req.session.destroy((err) => {
             if (err) {
                 console.error('Error logging out:', err);
                 return res.status(500).send('Error logging out');
-            } else {
-                res.redirect('/');
             }
+            res.redirect('/');
         });
     } else {
-        console.log('No session found');
-        res.redirect('/'); // Redirect even if no session exists
+        res.redirect('/');
     }
 });
 
-// Function to move a character to a user
 router.post('/claim-character', async (req, res) => {
-    const { character_name } = req.body;
+    const { characterId } = req.body; // Use characterId instead of character_name
     const userId = req.session.userId;  // Get the logged-in user's ID from the session
 
     if (!userId) {
@@ -140,17 +133,24 @@ router.post('/claim-character', async (req, res) => {
     }
 
     try {
-        // Use the reusable function to move the character
-        const moveResult = await moveCharacterToUser(userId, character_name);
+        // Fetch the character by ID and ensure it is unclaimed
+        const [character] = await db.query('SELECT * FROM characters WHERE id = ? AND status = ?', [characterId, 'unclaimed']);
+        if (!character || character.length === 0) {
+            return res.status(400).send('Character not found or already claimed');
+        }
+
+        // Use the reusable function to move the character to the user
+        const moveResult = await moveCharacterToUser(userId, character[0].name);
         if (!moveResult.success) {
             return res.status(400).send(moveResult.message); // Handle errors related to moving the character
         }
 
-        res.send('Character claimed successfully');
+        res.redirect('/roster');
     } catch (error) {
         console.error('Error claiming character:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 module.exports = router;
