@@ -70,7 +70,7 @@ app.use((req, res, next) => {
     res.status(404).render('404', { title: 'Page Not Found' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });
 

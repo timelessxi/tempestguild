@@ -1,13 +1,16 @@
 <div class="container">
     <h1 class="text-center my-4">Guild Roster</h1>
 
+
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" id="rosterTabs" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="claimed-tab" data-toggle="tab" href="#claimed" role="tab" aria-controls="claimed" aria-selected="true">Active Profiles</a>
+            <a class="nav-link active" id="claimed-tab" data-toggle="tab" href="#claimed" role="tab"
+                aria-controls="claimed" aria-selected="true">Active Profiles</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="unclaimed-tab" data-toggle="tab" href="#unclaimed" role="tab" aria-controls="unclaimed" aria-selected="false">Unclaimed Characters</a>
+            <a class="nav-link" id="unclaimed-tab" data-toggle="tab" href="#unclaimed" role="tab"
+                aria-controls="unclaimed" aria-selected="false">Unclaimed Characters</a>
         </li>
     </ul>
 
@@ -16,43 +19,75 @@
         <!-- Claimed Characters Tab -->
         <div class="tab-pane fade show active" id="claimed" role="tabpanel" aria-labelledby="claimed-tab">
             <div class="row">
-                <% claimedUsers.forEach(user => { %>
+                <% claimedUsers.forEach(user=> { %>
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 bg-dark text-white shadow-sm">
                             <div class="card-header text-center">
                                 <!-- User Profile Image -->
-                                <img src="<%= user.profile_image || '/images/default-profile.png' %>" alt="<%= user.username %>'s Profile" class="img-fluid rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;">
-                                <h5 class="card-title mt-3 text-light"><%= user.username %></h5>
+                                <img src="<%= user.profile_image || '/images/default-profile.png' %>"
+                                    alt="<%= user.username %>'s Profile" class="img-fluid rounded-circle mb-2"
+                                    style="width: 120px; height: 120px; object-fit: cover;">
+                                <h5 class="card-title mt-3 text-light">
+                                    <%= user.username %>
+                                </h5>
                             </div>
                             <div class="card-body">
                                 <p class="card-text text-center mb-4">
-                                    <strong>Bio:</strong> <%= user.bio || 'No bio provided' %>
+                                    <strong>Bio:</strong>
+                                    <%= user.bio || 'No bio provided' %>
                                 </p>
                                 <!-- List of Claimed Characters -->
                                 <h6 class="text-center text-warning">Characters</h6>
                                 <ul class="list-group mb-3">
-                                    <% user.characters.forEach(character => { %>
+                                    <% user.characters.forEach(character=> { %>
                                         <li class="list-group-item bg-dark text-light border-light">
-                                            <strong><%= character.name %></strong>
-                                            <span class="badge badge-warning float-right">Level <%= character.level %></span><br>
-                                            <small><%= character.class %></small>
+                                            <strong>
+                                                <%= character.name %>
+                                            </strong>
+                                            <span class="badge badge-warning float-right">Level <%= character.level %>
+                                                    </span><br>
+                                            <small>
+                                                <%= character.class %>
+                                            </small>
                                         </li>
-                                    <% }) %>
+                                        <% }) %>
                                 </ul>
                                 <a href="/profile/<%= user.id %>" class="btn btn-warning btn-block">View Profile</a>
                             </div>
                         </div>
                     </div>
-                <% }) %>
+                    <% }) %>
             </div>
         </div>
 
         <!-- Unclaimed Characters Tab -->
         <div class="tab-pane fade" id="unclaimed" role="tabpanel" aria-labelledby="unclaimed-tab">
             <!-- Search and Filter bar -->
+            <!-- Class Filter Buttons -->
+            <div class="d-flex justify-content-center flex-wrap mb-4">
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #FF7D0A; color: white;"
+                    onclick="filterByClass('Druid')">Druid</button>
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #ABD473; color: white;"
+                    onclick="filterByClass('Hunter')">Hunter</button>
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #69CCF0; color: white;"
+                    onclick="filterByClass('Mage')">Mage</button>
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #FFFFFF; color: black;"
+                    onclick="filterByClass('Priest')">Priest</button>
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #FFF569; color: black;"
+                    onclick="filterByClass('Rogue')">Rogue</button>
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #F58CBA; color: white;"
+                    onclick="filterByClass('Shaman')">Shaman</button>
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #9482C9; color: white;"
+                    onclick="filterByClass('Warlock')">Warlock</button>
+                <button class="btn btn-lg btn-outline-light m-2" style="background-color: #C79C6E; color: white;"
+                    onclick="filterByClass('Warrior')">Warrior</button>
+                <button class="btn btn-lg btn-outline-secondary m-2" onclick="filterByClass('all')">Show All</button>
+            </div>
+            
             <div class="row mb-4">
                 <div class="col-md-6 mx-auto">
-                    <input type="text" id="unclaimedSearch" class="form-control" placeholder="Search for a character name...">
+                    <input type="text" id="unclaimedSearch" class="form-control"
+                        placeholder="Search for a character name...">
                 </div>
                 <div class="col-md-4 mx-auto">
                     <select id="levelRangeFilter" class="form-control">
@@ -68,18 +103,24 @@
             </div>
 
             <div class="row" id="unclaimedCharacterList">
-                <% unclaimedCharacters.forEach(character => { %>
-                    <div class="col-md-4 mb-4 character-card" data-level="<%= character.level %>">
+                <% unclaimedCharacters.forEach(character=> { %>
+                    <div class="col-md-4 mb-4 character-card" data-level="<%= character.level %>"
+                        data-class="<%= character.class %>">
                         <div class="card h-100 bg-dark text-white shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title text-light"><%= character.name %></h5>
+                                <h5 class="card-title text-light">
+                                    <%= character.name %>
+                                </h5>
                                 <p class="card-text">
-                                    <strong>Class:</strong> <%= character.class %><br>
-                                    <strong>Level:</strong> <%= character.level %>
+                                    <strong>Class:</strong>
+                                    <%= character.class %><br>
+                                        <strong>Level:</strong>
+                                        <%= character.level %>
                                 </p>
                                 <!-- Claim button -->
                                 <div class="d-flex justify-content-center">
-                                    <form action="/claim-character" method="POST" onsubmit="return confirm('Are you sure you want to claim this character?');">
+                                    <form action="/claim-character" method="POST"
+                                        onsubmit="return confirm('Are you sure you want to claim this character?');">
                                         <input type="hidden" name="characterId" value="<%= character.id %>">
                                         <button type="submit" class="btn btn-warning btn-block">Claim</button>
                                     </form>
@@ -87,13 +128,12 @@
                             </div>
                         </div>
                     </div>
-                <% }) %>
+                    <% }) %>
             </div>
         </div>
     </div>
 </div>
 
-<!-- JavaScript for search and filter functionality -->
 <script>
     document.getElementById('unclaimedSearch').addEventListener('keyup', filterCharacters);
     document.getElementById('levelRangeFilter').addEventListener('change', filterCharacters);
@@ -103,9 +143,10 @@
         const levelRange = document.getElementById('levelRangeFilter').value;
         const characterCards = document.querySelectorAll('#unclaimedCharacterList .character-card');
 
-        characterCards.forEach(function(card) {
+        characterCards.forEach(function (card) {
             const characterName = card.querySelector('.card-title').textContent.toLowerCase();
             const characterLevel = parseInt(card.getAttribute('data-level'));
+            const characterClass = card.getAttribute('data-class');
 
             let matchesSearch = characterName.includes(searchValue);
             let matchesLevel = levelRange === 'all';
@@ -115,11 +156,23 @@
                 matchesLevel = characterLevel >= minLevel && characterLevel <= maxLevel;
             }
 
-            if (matchesSearch && matchesLevel) {
+            if (matchesSearch && matchesLevel && matchesClassFilter(characterClass)) {
                 card.style.display = 'block';
             } else {
                 card.style.display = 'none';
             }
         });
+    }
+
+    // Class filter logic
+    let selectedClass = 'all';
+
+    function filterByClass(className) {
+        selectedClass = className;
+        filterCharacters();
+    }
+
+    function matchesClassFilter(characterClass) {
+        return selectedClass === 'all' || characterClass === selectedClass;
     }
 </script>
