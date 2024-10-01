@@ -45,7 +45,7 @@
                                                 <%= character.name %>
                                             </strong>
                                             <span class="badge badge-warning float-right">Level <%= character.level %>
-                                                    </span><br>
+                                            </span><br>
                                             <small>
                                                 <%= character.class %>
                                             </small>
@@ -59,11 +59,9 @@
                     <% }) %>
             </div>
         </div>
-
         <!-- Unclaimed Characters Tab -->
         <div class="tab-pane fade" id="unclaimed" role="tabpanel" aria-labelledby="unclaimed-tab">
-            <!-- Search and Filter bar -->
-            <!-- Class Filter Buttons -->
+                        <!-- Class Filter Buttons -->
             <div class="d-flex justify-content-center flex-wrap mb-4">
                 <button class="btn btn-lg btn-outline-light m-2" style="background-color: #FF7D0A; color: white;"
                     onclick="filterByClass('Druid')">Druid</button>
@@ -83,7 +81,6 @@
                     onclick="filterByClass('Warrior')">Warrior</button>
                 <button class="btn btn-lg btn-outline-secondary m-2" onclick="filterByClass('all')">Show All</button>
             </div>
-            
             <div class="row mb-4">
                 <div class="col-md-6 mx-auto">
                     <input type="text" id="unclaimedSearch" class="form-control"
@@ -101,36 +98,29 @@
                     </select>
                 </div>
             </div>
+            <p>Click on a character card to claim as your own.</p>
 
             <div class="row" id="unclaimedCharacterList">
                 <% unclaimedCharacters.forEach(character=> { %>
                     <div class="col-md-4 mb-4 character-card" data-level="<%= character.level %>"
                         data-class="<%= character.class %>">
-                        <div class="card h-100 bg-dark text-white shadow-sm">
+                        <div class="card h-100 bg-dark text-white shadow-sm"
+                            onclick="if(confirm('Are you sure you want to claim <%= character.name %>?')) { window.location.href='/claim-character/<%= character.id %>'; }"
+                            style="cursor: pointer;">
                             <div class="card-body">
                                 <h5 class="card-title text-light">
                                     <%= character.name %>
                                 </h5>
                                 <p class="card-text">
-                                    <strong>Class:</strong>
-                                    <%= character.class %><br>
-                                        <strong>Level:</strong>
-                                        <%= character.level %>
+                                    <strong>Level <%= character.level %></strong> - <%= character.class %><br>
                                 </p>
-                                <!-- Claim button -->
-                                <div class="d-flex justify-content-center">
-                                    <form action="/claim-character" method="POST"
-                                        onsubmit="return confirm('Are you sure you want to claim this character?');">
-                                        <input type="hidden" name="characterId" value="<%= character.id %>">
-                                        <button type="submit" class="btn btn-warning btn-block">Claim</button>
-                                    </form>
-                                </div>
                             </div>
                         </div>
                     </div>
                     <% }) %>
             </div>
         </div>
+
     </div>
 </div>
 

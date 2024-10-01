@@ -141,6 +141,17 @@ hr {
     color: #ff8000;
 }
 
+.discord-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #1e1e1e;
+    /* Dark background */
+    border-radius: 8px;
+    color: #e0e0e0;
+    /* Light text */
+}
+
 /* Form Container */
 .form-container {
     max-width: 500px;
