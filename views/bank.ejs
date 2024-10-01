@@ -3,7 +3,8 @@
 
     <!-- Search Box -->
     <div class="input-group mb-4">
-        <input type="text" id="search-input" class="form-control" placeholder="Search items..." aria-label="Search items">
+        <input type="text" id="search-input" class="form-control" placeholder="Search items..."
+            aria-label="Search items">
         <div class="input-group-append">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
         </div>
@@ -12,43 +13,49 @@
     <!-- Tabs for Item Categories -->
     <ul class="nav nav-tabs" id="guildBankTabs" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab" aria-controls="all" aria-selected="true">All</a>
+            <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab" aria-controls="all"
+                aria-selected="true">All</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="weapons-tab" data-toggle="tab" href="#weapons" role="tab" aria-controls="weapons" aria-selected="false">Weapons</a>
+            <a class="nav-link" id="weapons-tab" data-toggle="tab" href="#weapons" role="tab" aria-controls="weapons"
+                aria-selected="false">Weapons</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="armor-tab" data-toggle="tab" href="#armor" role="tab" aria-controls="armor" aria-selected="false">Armor</a>
+            <a class="nav-link" id="armor-tab" data-toggle="tab" href="#armor" role="tab" aria-controls="armor"
+                aria-selected="false">Armor</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="consumables-tab" data-toggle="tab" href="#consumables" role="tab" aria-controls="consumables" aria-selected="false">Consumables</a>
+            <a class="nav-link" id="consumables-tab" data-toggle="tab" href="#consumables" role="tab"
+                aria-controls="consumables" aria-selected="false">Consumables</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="materials-tab" data-toggle="tab" href="#materials" role="tab" aria-controls="materials" aria-selected="false">Materials</a>
+            <a class="nav-link" id="materials-tab" data-toggle="tab" href="#materials" role="tab"
+                aria-controls="materials" aria-selected="false">Materials</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="bags-tab" data-toggle="tab" href="#bags" role="tab" aria-controls="bags" aria-selected="false">Bags</a>
+            <a class="nav-link" id="bags-tab" data-toggle="tab" href="#bags" role="tab" aria-controls="bags"
+                aria-selected="false">Bags</a>
         </li>
     </ul>
 
     <!-- Tab Content -->
     <div class="tab-content" id="guildBankTabContent">
-        
+
         <!-- All Items Tab -->
         <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
             <div class="row mt-4">
                 <% allItems.forEach(function(item) { %>
-                <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= item.name %></h5>
-                            <p class="card-text">Type: <%= item.type %></p>
-                            <p class="card-text">Count: <%= item.count %></p>
-                            <p class="card-text"><%= item.stats %></p>
-                            <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                    <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
+                        <div class="card bg-dark text-white" data-toggle="modal"
+                            data-target="#requestModal-<%= item.id %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= item.name %></h5>
+                                <p class="card-text">Type: <%= item.type %></p>
+                                <p class="card-text">Count: <%= item.count %></p>
+                                <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <% }); %>
             </div>
         </div>
@@ -57,17 +64,17 @@
         <div class="tab-pane fade" id="weapons" role="tabpanel" aria-labelledby="weapons-tab">
             <div class="row mt-4">
                 <% weaponItems.forEach(function(item) { %>
-                <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= item.name %></h5>
-                            <p class="card-text">Type: <%= item.type %></p>
-                            <p class="card-text">Count: <%= item.count %></p>
-                            <p class="card-text"><%= item.stats %></p>
-                            <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                    <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
+                        <div class="card bg-dark text-white" data-toggle="modal"
+                            data-target="#requestModal-<%= item.id %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= item.name %></h5>
+                                <p class="card-text">Type: <%= item.type %></p>
+                                <p class="card-text">Count: <%= item.count %></p>
+                                <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <% }); %>
             </div>
         </div>
@@ -76,17 +83,17 @@
         <div class="tab-pane fade" id="armor" role="tabpanel" aria-labelledby="armor-tab">
             <div class="row mt-4">
                 <% armorItems.forEach(function(item) { %>
-                <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= item.name %></h5>
-                            <p class="card-text">Type: <%= item.type %></p>
-                            <p class="card-text">Count: <%= item.count %></p>
-                            <p class="card-text"><%= item.stats %></p>
-                            <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                    <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
+                        <div class="card bg-dark text-white" data-toggle="modal"
+                            data-target="#requestModal-<%= item.id %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= item.name %></h5>
+                                <p class="card-text">Type: <%= item.type %></p>
+                                <p class="card-text">Count: <%= item.count %></p>
+                                <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <% }); %>
             </div>
         </div>
@@ -95,17 +102,17 @@
         <div class="tab-pane fade" id="consumables" role="tabpanel" aria-labelledby="consumables-tab">
             <div class="row mt-4">
                 <% consumableItems.forEach(function(item) { %>
-                <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= item.name %></h5>
-                            <p class="card-text">Type: <%= item.type %></p>
-                            <p class="card-text">Count: <%= item.count %></p>
-                            <p class="card-text"><%= item.stats %></p>
-                            <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                    <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
+                        <div class="card bg-dark text-white" data-toggle="modal"
+                            data-target="#requestModal-<%= item.id %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= item.name %></h5>
+                                <p class="card-text">Type: <%= item.type %></p>
+                                <p class="card-text">Count: <%= item.count %></p>
+                                <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <% }); %>
             </div>
         </div>
@@ -114,17 +121,17 @@
         <div class="tab-pane fade" id="materials" role="tabpanel" aria-labelledby="materials-tab">
             <div class="row mt-4">
                 <% materialItems.forEach(function(item) { %>
-                <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= item.name %></h5>
-                            <p class="card-text">Type: <%= item.type %></p>
-                            <p class="card-text">Count: <%= item.count %></p>
-                            <p class="card-text"><%= item.stats %></p>
-                            <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                    <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
+                        <div class="card bg-dark text-white" data-toggle="modal"
+                            data-target="#requestModal-<%= item.id %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= item.name %></h5>
+                                <p class="card-text">Type: <%= item.type %></p>
+                                <p class="card-text">Count: <%= item.count %></p>
+                                <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <% }); %>
             </div>
         </div>
@@ -133,30 +140,77 @@
         <div class="tab-pane fade" id="bags" role="tabpanel" aria-labelledby="bags-tab">
             <div class="row mt-4">
                 <% bagItems.forEach(function(item) { %>
-                <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= item.name %></h5>
-                            <p class="card-text">Type: <%= item.type %></p>
-                            <p class="card-text">Count: <%= item.count %></p>
-                            <p class="card-text"><%= item.stats %></p>
-                            <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                    <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
+                        <div class="card bg-dark text-white" data-toggle="modal"
+                            data-target="#requestModal-<%= item.id %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= item.name %></h5>
+                                <p class="card-text">Type: <%= item.type %></p>
+                                <p class="card-text">Count: <%= item.count %></p>
+                                <p class="card-text <%= item.rarity_class %>">Rarity: <%= item.rarity_name %></p>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <% }); %>
             </div>
         </div>
     </div>
+
+    <!-- Modals for each item -->
+    <% allItems.forEach(function(item) { %>
+        <div class="modal fade" id="requestModal-<%= item.id %>" tabindex="-1" role="dialog"
+            aria-labelledby="requestModalLabel-<%= item.id %>" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content bg-dark text-white">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="requestModalLabel-<%= item.id %>">Request <%= item.name %></h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="POST" action="/request-item">
+                        <div class="modal-body">
+                            <!-- Hidden Input for Item ID -->
+                            <input type="hidden" name="item_id" value="<%= item.id %>">
+
+                            <!-- Select Character -->
+                            <div class="form-group">
+                                <label for="characterSelect-<%= item.id %>">Select Character</label>
+                                <select class="form-control" id="characterSelect-<%= item.id %>" name="character_id" required>
+                                    <% claimedCharacters.forEach(function(character) { %>
+                                        <option value="<%= character.id %>">
+                                            <%= character.name %> (Level <%= character.level %>)
+                                        </option>
+                                    <% }); %>
+                                </select>
+                            </div>
+
+                            <!-- Select Quantity -->
+                            <div class="form-group">
+                                <label for="quantity-<%= item.id %>">Quantity</label>
+                                <input type="number" class="form-control" id="quantity-<%= item.id %>"
+                                    name="quantity" min="1" max="<%= item.count %>" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+
 </div>
 
 <!-- JavaScript for filtering items -->
 <script>
-    document.getElementById('search-input').addEventListener('input', function() {
+    document.getElementById('search-input').addEventListener('input', function () {
         const query = this.value.toLowerCase();
         const items = document.querySelectorAll('.item');
 
-        items.forEach(function(item) {
+        items.forEach(function (item) {
             const itemName = item.getAttribute('data-name').toLowerCase();
             if (itemName.includes(query)) {
                 item.style.display = '';

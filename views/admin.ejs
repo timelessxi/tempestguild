@@ -23,6 +23,10 @@
         <a class="nav-link" id="uploads-tab" data-toggle="tab" href="#uploads" role="tab" aria-controls="uploads"
             aria-selected="false">File Uploads</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" id="item-requests-tab" data-toggle="tab" href="#item-requests" role="tab"
+            aria-controls="item-requests" aria-selected="false">Item Requests</a>
+    </li>
 </ul>
 
 <div class="tab-content mt-4" id="adminTabContent">
@@ -154,49 +158,46 @@
             </tbody>
         </table>
     </div>
-
-
-
-    <!-- Guild Bank Requests Tab -->
-    <div class="tab-pane fade" id="bank-requests" role="tabpanel" aria-labelledby="bank-requests-tab">
-        <h3>Guild Bank Requests</h3>
+    <div class="tab-pane fade" id="item-requests" role="tabpanel" aria-labelledby="item-requests-tab">
+        <h3>Pending Item Requests</h3>
         <table class="table table-dark table-hover">
             <thead>
                 <tr>
-                    <th scope="col">Request ID</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Item</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Actions</th>
+                    <th>Request ID</th>
+                    <th>User</th>
+                    <th>Character</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Faux Guild Bank Request Data -->
-                <tr>
-                    <td>#001</td>
-                    <td>Twome</td>
-                    <td>Arcanite Reaper</td>
-                    <td>Pending</td>
-                    <td>
-                        <button class="btn btn-success btn-sm">Approve</button>
-                        <button class="btn btn-danger btn-sm">Deny</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#002</td>
-                    <td>Silverkin</td>
-                    <td>Greater Healing Potion (x10)</td>
-                    <td>Pending</td>
-                    <td>
-                        <button class="btn btn-success btn-sm">Approve</button>
-                        <button class="btn btn-danger btn-sm">Deny</button>
-                    </td>
-                </tr>
-                <!-- Add more faux requests as needed -->
-            </tbody>
+                <% itemRequests.forEach(request => { %>
+                    <tr>
+                        <td><%= request.id %></td>
+                        <td><%= request.username %></td>
+                        <td><%= request.character_name %></td>
+                        <td><%= request.item_name %></td>
+                        <td><%= request.quantity %></td>
+                        <td><%= request.status %></td>
+                        <td>
+                            <% if (request.status === 'pending') { %>
+                                <form method="POST" action="/admin/request/approve/<%= request.id %>" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </form>
+                                <form method="POST" action="/admin/request/deny/<%= request.id %>" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+                                </form>
+                            <% } else { %>
+                                <span><%= request.status %></span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>            
         </table>
     </div>
-
     <!-- News Management Tab -->
     <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
         <h3>News Management</h3>
