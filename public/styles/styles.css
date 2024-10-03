@@ -138,6 +138,53 @@ hr {
     margin-bottom: 0;
 }
 
+/* Character Class Specific Card Styles */
+.card-druid {
+    background-color: #FF7D0A; /* Druid color */
+}
+
+.card-hunter {
+    background-color: #ABD473; /* Hunter color */
+}
+
+.card-mage {
+    background-color: #69CCF0; /* Mage color */
+}
+
+.card-priest {
+    background-color: #FFFFFF; /* Priest color */
+    color: black;
+}
+
+.card-rogue {
+    background-color: #FFF569; /* Rogue color */
+    color: black;
+}
+
+.card-shaman {
+    background-color: #0070DE; /* Shaman color */
+}
+
+.card-warlock {
+    background-color: #9482C9; /* Warlock color */
+}
+
+.card-warrior {
+    background-color: #C79C6E; /* Warrior color */
+}
+
+/* Ensure text is white unless overridden */
+.card {
+    color: white;
+}
+
+.profile-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+
 /*=============================================
 =          Character Avatar Styles            =
 =============================================*/
@@ -150,12 +197,6 @@ hr {
     border-color: #ffc107; /* Bootstrap's warning color */
 }
 
-/* Card Hover Effect */
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
 .character-icon i {
     transition: transform 0.2s;
 }
@@ -163,8 +204,6 @@ hr {
 .character-icon i:hover {
     transform: scale(1.2);
 }
-
-
 
 /*=============================================
 =              Rarity Colors                  =
