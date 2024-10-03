@@ -139,6 +139,34 @@ hr {
 }
 
 /*=============================================
+=          Character Avatar Styles            =
+=============================================*/
+.character-avatar img {
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.character-avatar img:hover {
+    transform: scale(1.1);
+    border-color: #ffc107; /* Bootstrap's warning color */
+}
+
+/* Card Hover Effect */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.character-icon i {
+    transition: transform 0.2s;
+}
+
+.character-icon i:hover {
+    transform: scale(1.2);
+}
+
+
+
+/*=============================================
 =              Rarity Colors                  =
 =============================================*/
 .rarity-common {

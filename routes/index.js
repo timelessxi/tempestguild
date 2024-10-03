@@ -383,6 +383,21 @@ router.get('/roster', isAuthenticated, async (req, res) => {
             ORDER BY u.username
         `);
 
+        function getClassColor(characterClass) {
+            const classColors = {
+                'Druid': '#FF7D0A',
+                'Hunter': '#ABD473',
+                'Mage': '#69CCF0',
+                'Priest': '#FFFFFF',
+                'Rogue': '#FFF569',
+                'Shaman': '#0070DE',
+                'Warlock': '#9482C9',
+                'Warrior': '#C79C6E',
+                // Add other classes if needed
+            };
+            return classColors[characterClass] || '#FFFFFF'; // Default to white if class not found
+        }
+
         // Group characters by users
         const users = {};
         claimedUsers.forEach(row => {
@@ -423,7 +438,8 @@ router.get('/roster', isAuthenticated, async (req, res) => {
             title: 'Guild Roster - Tempest Guild',
             page: 'roster',
             claimedUsers: claimedUsersArray,
-            unclaimedCharacters
+            unclaimedCharacters,
+            getClassColor
         });
     } catch (error) {
         console.error('Error fetching roster:', error);
