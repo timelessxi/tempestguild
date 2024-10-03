@@ -46,7 +46,29 @@ router.get('/admin', isAuthenticated, isAdminOrGuildMaster, async (req, res) => 
             WHERE ir.status = 'pending'
         `);
 
-        res.render('base', { title: 'Admin - Tempest Guild', page: 'admin', body: 'admin', newsArticles, pendingUsers, roles, itemRequests });
+        // Fetch users with characters and professions
+        const [users] = await db.query(`
+            SELECT u.id AS user_id, u.username, u.email, u.status, r.name AS role,
+                   GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') AS characters,
+                   GROUP_CONCAT(DISTINCT p.name SEPARATOR ', ') AS professions
+            FROM users u
+            LEFT JOIN roles r ON u.role_id = r.id
+            LEFT JOIN characters c ON c.user_id = u.id
+            LEFT JOIN character_professions cp ON cp.character_id = c.id
+            LEFT JOIN professions p ON p.id = cp.profession_id
+            GROUP BY u.id
+        `);
+
+        res.render('base', { 
+            title: 'Admin - Tempest Guild', 
+            page: 'admin', 
+            body: 'admin', 
+            newsArticles, 
+            pendingUsers, 
+            roles, 
+            itemRequests, 
+            users 
+        });
     } catch (error) {
         console.error('Error fetching admin data:', error);
         res.status(500).send('Internal Server Error');
@@ -85,6 +107,17 @@ router.post('/admin/news/edit/:id', isAuthenticated, isAdminOrGuildMaster, async
         res.redirect('/admin');
     } catch (error) {
         console.error('Error updating news article:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.post('/admin/news/delete/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
+    const articleId = req.params.id;
+    try {
+        await db.query('DELETE FROM news_articles WHERE id = ?', [articleId]);
+        res.redirect('/admin');
+    } catch (error) {
+        console.error('Error deleting article:', error);
         res.status(500).send('Internal Server Error');
     }
 });
@@ -283,24 +316,47 @@ router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single
                 return res.status(400).send('No items found in the file.');
             }
 
-            // Clear the guild_bank table
-            await db.query('TRUNCATE TABLE guild_bank');
+            // Fetch existing items from the guild_bank table
+            const [existingItems] = await db.query('SELECT * FROM guild_bank');
+            const existingItemsMap = new Map(existingItems.map(item => [item.name, item])); // Map existing items by name
 
-            // Insert new items into the database
-            const insertPromises = items.map(item => {
-                if (!item.name || !item.type || !item.count || !item.rarity) {
-                    console.error(`Skipping item due to missing required fields: ${JSON.stringify(item)}`);
-                    return Promise.resolve();
+            // Step 1: Loop through new items and insert or update them
+            const upsertPromises = items.map(async newItem => {
+                const existingItem = existingItemsMap.get(newItem.name);
+
+                if (existingItem) {
+                    // Item exists, check if we need to update it
+                    if (newItem.count !== existingItem.count || 
+                        newItem.type !== existingItem.type || 
+                        newItem.rarity !== existingItem.rarity || 
+                        newItem.subType !== existingItem.subType || 
+                        newItem.stats !== existingItem.stats) {
+                        // Update the item if there are changes
+                        await db.query(
+                            'UPDATE guild_bank SET count = ?, type = ?, rarity = ?, subType = ?, stats = ? WHERE id = ?',
+                            [newItem.count, newItem.type, newItem.rarity, newItem.subType || null, newItem.stats || null, existingItem.id]
+                        );
+                    }
+                    // Remove item from map as it's already processed
+                    existingItemsMap.delete(newItem.name);
+                } else {
+                    // Insert new item if it doesn't exist
+                    await db.query(
+                        'INSERT INTO guild_bank (name, type, count, rarity, subType, stats, source) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        [newItem.name, newItem.type, newItem.count, newItem.rarity, newItem.subType || null, newItem.stats || null, newItem.source || null]
+                    );
                 }
-                return db.query(
-                    'INSERT INTO guild_bank (name, type, count, rarity, subType, stats, source) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    [item.name, item.type, item.count, item.rarity, item.subType || null, item.stats || null, item.source || null]
-                );
             });
 
-            await Promise.all(insertPromises);
+            // Step 2: Handle any remaining items in the existingItemsMap (these should be deleted)
+            const deletePromises = Array.from(existingItemsMap.values()).map(async oldItem => {
+                await db.query('DELETE FROM guild_bank WHERE id = ?', [oldItem.id]);
+            });
 
-            console.log('Guild Bank updated successfully');
+            // Step 3: Wait for all insert, update, and delete operations to finish
+            await Promise.all([...upsertPromises, ...deletePromises]);
+
+            console.log('Guild Bank synced successfully');
             fs.unlink(filePath, (err) => {
                 if (err) {
                     console.error('Error deleting file:', err);
@@ -314,6 +370,7 @@ router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single
         }
     });
 });
+
 
 router.get('/roster', isAuthenticated, async (req, res) => {
     try {

@@ -86,12 +86,12 @@ hr {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     background: linear-gradient(145deg, #1c1c1c, #333333);
     color: white;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     max-height: 800px;
     overflow: hidden;
-    /* Ensures excess content doesn't overflow */
 }
 
 .card-img-top {
@@ -108,6 +108,7 @@ hr {
 
 .card-text {
     color: #bbbbbb;
+    line-height: 1.2;
     margin-bottom: 5px;
 }
 

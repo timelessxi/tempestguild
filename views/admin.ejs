@@ -4,28 +4,19 @@
 <!-- Tabs for Admin Sections -->
 <ul class="nav nav-tabs" id="adminTabs" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users"
-            aria-selected="true">User Management</a>
+        <a class="nav-link active" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="true">User Management</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="pending-registrations-tab" data-toggle="tab" href="#pending-registrations" role="tab"
-            aria-controls="pending-registrations" aria-selected="false">Pending Registrations</a>
+        <a class="nav-link" id="pending-registrations-tab" data-toggle="tab" href="#pending-registrations" role="tab" aria-controls="pending-registrations" aria-selected="false">Pending Registrations</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="bank-requests-tab" data-toggle="tab" href="#bank-requests" role="tab"
-            aria-controls="bank-requests" aria-selected="false">Guild Bank Requests</a>
+        <a class="nav-link" id="news-tab" data-toggle="tab" href="#news" role="tab" aria-controls="news" aria-selected="false">News Management</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="news-tab" data-toggle="tab" href="#news" role="tab" aria-controls="news"
-            aria-selected="false">News Management</a>
+        <a class="nav-link" id="uploads-tab" data-toggle="tab" href="#uploads" role="tab" aria-controls="uploads" aria-selected="false">File Uploads</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="uploads-tab" data-toggle="tab" href="#uploads" role="tab" aria-controls="uploads"
-            aria-selected="false">File Uploads</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="item-requests-tab" data-toggle="tab" href="#item-requests" role="tab"
-            aria-controls="item-requests" aria-selected="false">Item Requests</a>
+        <a class="nav-link" id="item-requests-tab" data-toggle="tab" href="#item-requests" role="tab" aria-controls="item-requests" aria-selected="false">Item Requests</a>
     </li>
 </ul>
 
@@ -44,77 +35,35 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Faux User Data -->
+                <% users.forEach(user => { %>
                 <tr>
-                    <td><a href="/user/twome">Twome</a></td>
-                    <td>twome@example.com</td>
+                    <td><a href="/user/<%= user.username %>">
+                            <%= user.username %>
+                        </a></td>
+                    <td>
+                        <%= user.email %>
+                    </td>
                     <td>
                         <ul>
-                            <li>
-                                <strong>Twome (Hunter)</strong>
-                                <ul>
-                                    <li>Leatherworking</li>
-                                    <li>Skinning</li>
-                                </ul>
+                            <li><strong>Characters: </strong>
+                                <%= user.characters %>
                             </li>
-                            <li>
-                                <strong>AltHunter (Hunter)</strong>
-                                <ul>
-                                    <li>Engineering</li>
-                                    <li>Mining</li>
-                                </ul>
+                            <li><strong>Professions: </strong>
+                                <%= user.professions %>
                             </li>
                         </ul>
                     </td>
                     <td>
-                        <a href="/user/twome/view" class="btn btn-info btn-sm">View</a>
-                        <a href="/user/twome/edit" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="/user/twome/delete" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="/profile/<%= user.user_id %>" class="btn btn-info btn-sm">View</a>
+                        <a href="/user/<%= user.username %>/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/user/<%= user.username %>/delete" class="btn btn-danger btn-sm">Delete</a>
                     </td>
                 </tr>
-                <tr>
-                    <td><a href="/user/silverkin">Silverkin</a></td>
-                    <td>silverkin@example.com</td>
-                    <td>
-                        <ul>
-                            <li>
-                                <strong>Silverkin (Priest)</strong>
-                                <ul>
-                                    <li>Alchemy</li>
-                                    <li>Herbalism</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </td>
-                    <td>
-                        <a href="/user/silverkin/view" class="btn btn-info btn-sm">View</a>
-                        <a href="/user/silverkin/edit" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="/user/silverkin/delete" class="btn btn-danger btn-sm">Delete</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td><a href="/user/oneme">Oneme</a></td>
-                    <td>oneme@example.com</td>
-                    <td>
-                        <ul>
-                            <li>
-                                <strong>Oneme (Mage)</strong>
-                                <ul>
-                                    <li>Enchanting</li>
-                                    <li>Tailoring</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </td>
-                    <td>
-                        <a href="/user/oneme/view" class="btn btn-info btn-sm">View</a>
-                        <a href="/user/oneme/edit" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="/user/oneme/delete" class="btn btn-danger btn-sm">Delete</a>
-                    </td>
-                </tr>
+                <% }) %>
             </tbody>
         </table>
     </div>
+
     <!-- Pending Registrations Tab -->
     <div class="tab-pane fade" id="pending-registrations" role="tabpanel" aria-labelledby="pending-registrations-tab">
         <h3>Pending Registrations</h3>
@@ -128,36 +77,38 @@
                 </tr>
             </thead>
             <tbody>
-                <% pendingUsers.forEach(user=> { %>
-                    <tr>
-                        <td>
-                            <%= user.username %>
-                        </td>
-                        <td>
-                            <%= user.email %>
-                        </td>
-                        <td>
-                            <form method="POST" action="/admin/users/approve/<%= user.id %>" style="display:inline;">
-                                <select name="role_id" class="form-select">
-                                    <% roles.forEach(role=> { %>
-                                        <option value="<%= role.id %>">
-                                            <%= role.name %>
-                                        </option>
-                                        <% }); %>
-                                </select>
-                        </td>
-                        <td>
-                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                            </form>
-                            <form method="POST" action="/admin/users/deny/<%= user.id %>" style="display:inline;">
-                                <button type="submit" class="btn btn-danger btn-sm">Deny</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <% }) %>
+                <% pendingUsers.forEach(user => { %>
+                <tr>
+                    <td>
+                        <%= user.username %>
+                    </td>
+                    <td>
+                        <%= user.email %>
+                    </td>
+                    <td>
+                        <form method="POST" action="/admin/users/approve/<%= user.id %>" style="display:inline;">
+                            <select name="role_id" class="form-select">
+                                <% roles.forEach(role => { %>
+                                <option value="<%= role.id %>">
+                                    <%= role.name %>
+                                </option>
+                                <% }); %>
+                            </select>
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                        <form method="POST" action="/admin/users/deny/<%= user.id %>" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }) %>
             </tbody>
         </table>
     </div>
+
+    <!-- Item Requests Tab -->
     <div class="tab-pane fade" id="item-requests" role="tabpanel" aria-labelledby="item-requests-tab">
         <h3>Pending Item Requests</h3>
         <table class="table table-dark table-hover">
@@ -174,30 +125,45 @@
             </thead>
             <tbody>
                 <% itemRequests.forEach(request => { %>
-                    <tr>
-                        <td><%= request.id %></td>
-                        <td><%= request.username %></td>
-                        <td><%= request.character_name %></td>
-                        <td><%= request.item_name %></td>
-                        <td><%= request.quantity %></td>
-                        <td><%= request.status %></td>
-                        <td>
-                            <% if (request.status === 'pending') { %>
-                                <form method="POST" action="/admin/request/approve/<%= request.id %>" style="display:inline;">
-                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                                </form>
-                                <form method="POST" action="/admin/request/deny/<%= request.id %>" style="display:inline;">
-                                    <button type="submit" class="btn btn-danger btn-sm">Deny</button>
-                                </form>
-                            <% } else { %>
-                                <span><%= request.status %></span>
-                            <% } %>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>
+                        <%= request.id %>
+                    </td>
+                    <td>
+                        <%= request.username %>
+                    </td>
+                    <td>
+                        <%= request.character_name %>
+                    </td>
+                    <td>
+                        <%= request.item_name %>
+                    </td>
+                    <td>
+                        <%= request.quantity %>
+                    </td>
+                    <td>
+                        <%= request.status %>
+                    </td>
+                    <td>
+                        <% if (request.status === 'pending') { %>
+                        <form method="POST" action="/admin/request/approve/<%= request.id %>" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                        <form method="POST" action="/admin/request/deny/<%= request.id %>" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+                        </form>
+                        <% } else { %>
+                        <span>
+                            <%= request.status %>
+                        </span>
+                        <% } %>
+                    </td>
+                </tr>
                 <% }); %>
-            </tbody>            
+            </tbody>
         </table>
     </div>
+
     <!-- News Management Tab -->
     <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
         <h3>News Management</h3>
@@ -229,68 +195,59 @@
                 </tr>
             </thead>
             <tbody>
-                <% newsArticles.forEach(article=> { %>
-                    <tr>
-                        <td>
-                            <%= article.id %>
-                        </td>
-                        <td>
-                            <%= article.title %>
-                        </td>
-                        <td>
-                            <%= new Date(article.created_at).toLocaleDateString() %>
-                        </td>
-                        <td>
-                            <!-- Edit and Delete actions -->
-                            <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                data-target="#editModal-<%= article.id %>">Edit</button>
-                            <form method="POST" action="/admin/news/delete/<%= article.id %>" style="display:inline;">
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
+                <% newsArticles.forEach(article => { %>
+                <tr>
+                    <td>
+                        <%= article.id %>
+                    </td>
+                    <td>
+                        <%= article.title %>
+                    </td>
+                    <td>
+                        <%= new Date(article.created_at).toLocaleDateString() %>
+                    </td>
+                    <td>
+                        <!-- Edit and Delete actions -->
+                        <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editModal-<%= article.id %>">Edit</button>
+                        <form method="POST" action="/admin/news/delete/<%= article.id %>" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
 
-                            <!-- Edit Modal -->
-                            <div class="modal fade" id="editModal-<%= article.id %>" tabindex="-1" role="dialog"
-                                aria-labelledby="editModalLabel-<%= article.id %>" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editModalLabel-<%= article.id %>">Edit Article
-                                            </h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <form method="POST" action="/admin/news/edit/<%= article.id %>">
-                                            <div class="modal-body">
-                                                <div class="form-group">
-                                                    <label for="edit-title-<%= article.id %>">Title</label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit-title-<%= article.id %>" name="title"
-                                                        value="<%= article.title %>" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit-content-<%= article.id %>">Content</label>
-                                                    <textarea class="form-control" id="edit-content-<%= article.id %>"
-                                                        name="content" rows="5"
-                                                        required><%= article.content %></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Save changes</button>
-                                            </div>
-                                        </form>
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal-<%= article.id %>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel-<%= article.id %>" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel-<%= article.id %>">Edit Article</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
                                     </div>
+                                    <form method="POST" action="/admin/news/edit/<%= article.id %>">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="edit-title-<%= article.id %>">Title</label>
+                                                <input type="text" class="form-control" id="edit-title-<%= article.id %>" name="title" value="<%= article.title %>" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit-content-<%= article.id %>">Content</label>
+                                                <textarea class="form-control" id="edit-content-<%= article.id %>" name="content" rows="5" required><%= article.content %></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                    <% }); %>
+                        </div>
+                    </td>
+                </tr>
+                <% }); %>
             </tbody>
         </table>
     </div>
-
 
     <!-- File Uploads Tab -->
     <div class="tab-pane fade" id="uploads" role="tabpanel" aria-labelledby="uploads-tab">
@@ -298,10 +255,8 @@
         <p>Use this form to upload the Guild Roster and Guild Bank files.</p>
         <!-- Instructions -->
         <div class="alert alert-info" role="alert">
-            <strong>Important:</strong> Please use the <em>GuildBank</em> and <em>GuildRoster</em> addons to
-            generate the necessary files.
-            After running the addons in-game, you can find the generated files in the following directory on your
-            PC:
+            <strong>Important:</strong> Please use the <em>GuildBank</em> and <em>GuildRoster</em> addons to generate the necessary files.
+            After running the addons in-game, you can find the generated files in the following directory on your PC:
             <pre><code>C:\Program Files (x86)\World of Warcraft\_classic_era_\WTF\Account\YourAccountName\SavedVariables\</code></pre>
             Look for the files <strong>GuildBank.lua</strong> and <strong>GuildRoster.lua</strong>.
 
@@ -309,10 +264,8 @@
 
             <strong>Update Guidelines:</strong>
             <ul>
-                <li><strong>Roster:</strong> Please update the roster file at least once every 24 hours to ensure
-                    the most current data on member activity.</li>
-                <li><strong>Guild Bank:</strong> You should upload the guild bank file whenever items are added or
-                    removed from the bank to keep the data accurate.</li>
+                <li><strong>Roster:</strong> Please update the roster file at least once every 24 hours to ensure the most current data on member activity.</li>
+                <li><strong>Guild Bank:</strong> You should upload the guild bank file whenever items are added or removed from the bank to keep the data accurate.</li>
             </ul>
         </div>
         <div class="row">
@@ -349,4 +302,9 @@
     </div>
 
 </div>
-</div>
+
+<!-- TinyMCE Integration for Rich Text Editing -->
+<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('news-content');
+</script>

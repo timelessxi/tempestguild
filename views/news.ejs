@@ -5,7 +5,8 @@
     <div class="news-article mb-4">
         <h3><%= article.title %></h3>
         <small class="text-muted">Posted on <%= new Date(article.created_at).toLocaleDateString() %></small>
-        <p><%= article.content %></p>
+        <!-- Use <%- %> to render HTML content without escaping it -->
+        <p><%- article.content %></p>
         <hr>
     </div>
     <% }) %>

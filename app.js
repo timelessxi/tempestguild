@@ -67,7 +67,7 @@ app.use('/profile', profileRoutes); // Profile routes for viewing/editing user p
 
 // Error handling
 app.use((req, res, next) => {
-    res.status(404).render('404', { title: 'Page Not Found' });
+    res.status(404).render('base', { title: 'Page Not Found', page: '404' });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
