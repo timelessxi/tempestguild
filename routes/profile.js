@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+
+
 
 // View user profile
 router.get('/:id', async (req, res) => {
@@ -119,7 +124,6 @@ router.post('/:id/edit', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-const multer = require('multer');
 
 // Define storage strategy for multer
 const storage = multer.diskStorage({
@@ -131,8 +135,8 @@ const storage = multer.diskStorage({
     }
 });
 
-// Initialize the upload middleware
 const upload = multer({ storage: storage });
+
 // Route to handle profile image upload
 router.post('/:id/upload-image', upload.single('profileImage'), async (req, res) => {
     const userId = req.params.id;
@@ -141,11 +145,35 @@ router.post('/:id/upload-image', upload.single('profileImage'), async (req, res)
         return res.status(400).send('No file uploaded.');
     }
 
-    const imagePath = '/uploads/profiles/' + req.file.filename; // Correct the path
+    const newImagePath = '/uploads/profiles/' + req.file.filename;
 
     try {
+        // Fetch the current user's profile image from the database
+        const [user] = await db.query('SELECT profile_image FROM users WHERE id = ?', [userId]);
+
+        if (!user || user.length === 0) {
+            return res.status(404).send('User not found');
+        }
+
+        // If the user has a profile image and it's not the default image, delete the old one
+        const oldImagePath = user[0].profile_image;
+        if (oldImagePath && oldImagePath !== '/images/default-profile.png') {
+            const fullOldImagePath = path.join(__dirname, '../public', oldImagePath);
+
+            // Check if file exists before attempting to delete
+            if (fs.existsSync(fullOldImagePath)) {
+                fs.unlink(fullOldImagePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting old image:', err);
+                    } else {
+                        console.log('Old image deleted successfully');
+                    }
+                });
+            }
+        }
+
         // Update user's profile image path in the database
-        await db.query('UPDATE users SET profile_image = ? WHERE id = ?', [imagePath, userId]);
+        await db.query('UPDATE users SET profile_image = ? WHERE id = ?', [newImagePath, userId]);
 
         // Redirect back to the profile page after successful upload
         res.redirect(`/profile/${userId}`);
