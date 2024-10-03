@@ -15,9 +15,11 @@
                     <p><strong>Email:</strong>
                         <%= user.email %>
                     </p>
-                    <p><strong>Member Since: </strong>
-                        <%= new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                    <p><strong>Member Since:</strong>
+                        <%= new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
+                            day: 'numeric' }) %>
                     </p>
+
                     <!-- Show Edit Profile button and upload form only for the logged-in user -->
                     <% if (loggedInUserId===user.id) { %>
                         <a href="/profile/<%= user.id %>/edit" class="btn btn-primary mt-3 btn-block">Edit Profile</a>
@@ -33,129 +35,146 @@
                             <button type="submit" class="btn btn-secondary btn-block">Upload New Image</button>
                         </form>
                         <% } %>
-                </div>
-            </div>
+                </div> <!-- .card-body -->
+            </div> <!-- .card -->
+        </div> <!-- .col-md-4 -->
 
+        <!-- Tabs Section for Bio and Characters -->
+        <div class="col-md-8">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="bio-tab" data-toggle="tab" href="#bio" role="tab" aria-controls="bio"
+                        aria-selected="true">Bio</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="characters-tab" data-toggle="tab" href="#characters" role="tab"
+                        aria-controls="characters" aria-selected="false">Characters</a>
+                </li>
+            </ul>
 
-    </div>
-
-
-    <!-- Tabs Section for Bio and Characters -->
-    <div class="col-md-8">
-        <!-- Tabs -->
-        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="bio-tab" data-toggle="tab" href="#bio" role="tab" aria-controls="bio"
-                    aria-selected="true">Bio</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" id="characters-tab" data-toggle="tab" href="#characters" role="tab"
-                    aria-controls="characters" aria-selected="false">Characters</a>
-            </li>
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="profileTabContent">
-            <!-- Bio Tab -->
-            <div class="tab-pane fade show active" id="bio" role="tabpanel" aria-labelledby="bio-tab">
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title"></h5>
-                        <p>
-                            <%= user.bio || '' %>
-                        </p>
+            <!-- Tab Content -->
+            <div class="tab-content" id="profileTabContent">
+                <!-- Bio Tab -->
+                <div class="tab-pane fade show active" id="bio" role="tabpanel" aria-labelledby="bio-tab">
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title"></h5>
+                            <p>
+                                <%= user.bio || '' %>
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Characters Tab -->
-            <div class="tab-pane fade" id="characters" role="tabpanel" aria-labelledby="characters-tab">
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h3 class="mb-4">Characters</h3>
-                        <% if (characters.length> 0) { %>
-                            <div class="row">
-                                <% characters.forEach(character=> { %>
-                                    <div class="col-md-6">
-                                        <div class="card mb-4">
-                                            <div class="card-body">
-                                                <h5 class="card-title">
-                                                    <%= character.name %>
-                                                </h5>
-                                                <p><strong>Level <%= character.level %></strong>
-                                                    <%= character.class %>
-                                                </p>
+                <!-- Characters Tab -->
+                <div class="tab-pane fade" id="characters" role="tabpanel" aria-labelledby="characters-tab">
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h3 class="mb-4">Characters</h3>
+                            <% if (characters.length> 0) { %>
+                                <div class="row">
+                                    <% characters.forEach(character=> { %>
+                                        <div class="col-md-6">
+                                            <div class="card mb-4">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">
+                                                        <%= character.name %>
+                                                    </h5>
+                                                    <p><strong>Level <%= character.level %></strong>
+                                                        <%= character.class %>
+                                                    </p>
 
-                                                <!-- Professions Section -->
-                                                <h6>Professions</h6>
-                                                <% const charProfessions=professions.filter(p=> p.character_id ===
-                                                    character.id); %>
-                                                    <% if (charProfessions.length> 0) { %>
-                                                        <ul class="list-group mb-3">
-                                                            <% charProfessions.forEach(profession=> { %>
-                                                                <li
-                                                                    class="list-group-item d-flex justify-content-between align-items-center text-dark">
-                                                                    <%= profession.name %>
-                                                                        <span class="badge badge-primary badge-pill">
-                                                                            <%= profession.profession_level %>/300
-                                                                        </span>
-                                                                </li>
-                                                                <% }) %>
-                                                        </ul>
-                                                        <% } else { %>
-                                                            <p>No professions available for this character.</p>
-                                                            <% } %>
+                                                    <!-- Professions Section -->
+                                                    <% const charProfessions=professions.filter(p=> p.character_id ===
+                                                        character.id);
+                                                        %>
+                                                        <% if (charProfessions.length> 0) { %>
+                                                            <table class="table table-dark table-striped">
+                                                                <tbody>
+                                                                    <% charProfessions.forEach(profession=> { %>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <%= profession.name %>
+                                                                            </td>
+                                                                            <td>
+                                                                                <%= profession.profession_level %> / 300
+                                                                            </td>
+                                                                        </tr>
+                                                                        <% }) %>
+                                                                </tbody>
+                                                            </table>
+                                                            <% } else { %>
+                                                                <p>No professions listed.</p>
+                                                                <% } %>
 
-                                                                <!-- Update Profession Form - Only visible to the owner -->
-                                                                <% if (loggedInUserId===user.id) { %>
-                                                                    <form
-                                                                        action="/profile/<%= user.id %>/update-profession"
-                                                                        method="POST">
-                                                                        <div class="form-group">
-                                                                            <label
-                                                                                for="profession_<%= character.id %>">Add/Update
-                                                                                Profession</label>
-                                                                            <select name="profession_id"
-                                                                                class="form-control" required>
-                                                                                <option value="" disabled selected>
-                                                                                    Select Profession</option>
-                                                                                <%
-                                                                                    availableProfessions.forEach(profession=>
-                                                                                    { %>
-                                                                                    <option
-                                                                                        value="<%= profession.id %>">
-                                                                                        <%= profession.name %>
-                                                                                    </option>
-                                                                                    <% }) %>
-                                                                            </select>
-                                                                        </div>
-                                                                        <div class="form-group">
-                                                                            <label
-                                                                                for="profession_level_<%= character.id %>">Skill
-                                                                                Level</label>
-                                                                            <input type="number" name="profession_level"
-                                                                                class="form-control" max="300" min="1"
-                                                                                required>
-                                                                        </div>
-                                                                        <input type="hidden" name="character_id"
-                                                                            value="<%= character.id %>">
-                                                                        <button type="submit"
-                                                                            class="btn btn-success">Update
-                                                                            Profession</button>
-                                                                    </form>
-                                                                    <% } %>
-                                            </div>
-                                        </div>
-                                    </div>
+                                                                    <!-- Add/Update Profession Button -->
+                                                                    <% if (loggedInUserId===user.id) { %>
+                                                                        <button type="button"
+                                                                            class="btn btn-success mb-3"
+                                                                            data-toggle="modal"
+                                                                            data-target="#professionModal<%= character.id %>">
+                                                                            Add/Update Profession
+                                                                        </button>
+
+
+                                                                        <% } %>
+                                                                            <!-- End of Add/Update Profession Button -->
+                                                </div> <!-- .card-body -->
+                                            </div> <!-- .card -->
+                                        </div> <!-- .col-md-6 -->
+                                        <% }) %> <!-- End of characters.forEach -->
+                                </div> <!-- .row -->
+                                <% } else { %>
+                                    <p>No characters available.</p>
+                                    <% } %>
+                        </div> <!-- .card-body -->
+                    </div> <!-- .card -->
+                </div> <!-- .tab-pane -->
+            </div> <!-- .tab-content -->
+        </div> <!-- .col-md-8 -->
+    </div> <!-- .row -->
+</div> <!-- .container -->
+<!-- Modal -->
+<% characters.forEach(character=> { %>
+    <div class="modal fade" id="professionModal<%= character.id %>" tabindex="-1" role="dialog"
+        aria-labelledby="professionModalLabel<%= character.id %>" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content text-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="professionModalLabel<%= character.id %>">Add/Update Profession</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="/profile/<%= user.id %>/update-profession" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="profession_<%= character.id %>">Profession</label>
+                            <select id="profession_<%= character.id %>" name="profession_id" class="form-control"
+                                required>
+                                <option value="" disabled selected>Select Profession</option>
+                                <% availableProfessions.forEach(profession=> { %>
+                                    <option value="<%= profession.id %>">
+                                        <%= profession.name %>
+                                    </option>
                                     <% }) %>
-                            </div>
-                            <% } else { %>
-                                <p>No characters available.</p>
-                                <% } %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <!-- Skill Level Field -->
+                            <label for="profession_level_<%= character.id %>">Skill Level</label>
+                            <input id="profession_level_<%= character.id %>" type="number" name="profession_level"
+                                class="form-control" max="300" min="1" required>
+                        </div>
+                        <input type="hidden" name="character_id" value="<%= character.id %>">
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
-</div>
+    <% }) %>
