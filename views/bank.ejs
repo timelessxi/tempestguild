@@ -33,6 +33,10 @@
                 aria-controls="materials" aria-selected="false">Materials</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" id="recipes-tab" data-toggle="tab" href="#recipes" role="tab"
+                aria-controls="recipes" aria-selected="false">Recipes</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" id="bags-tab" data-toggle="tab" href="#bags" role="tab" aria-controls="bags"
                 aria-selected="false">Bags</a>
         </li>
@@ -51,13 +55,20 @@
                             <div class="card-body">
                                 <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
                                 <p class="card-text">Current Stock: <%= item.count %></p>
-                                <P class="card-text"><%= item.stats %></P>
+                                <% if (item.stats) { %> <!-- Check if stats exist -->
+                                    <% item.stats.split('\n').forEach(function(stat) { %>
+                                        <p class="card-text"><%= stat %></p>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p class="card-text">No stats available</p>
+                                <% } %>
                             </div>
                         </div>
                     </div>
                 <% }); %>
             </div>
         </div>
+
 
         <!-- Weapons Tab -->
         <div class="tab-pane fade" id="weapons" role="tabpanel" aria-labelledby="weapons-tab">
@@ -69,7 +80,13 @@
                             <div class="card-body">
                                 <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
                                 <p class="card-text">Current Stock: <%= item.count %></p>
-                                <P class="card-text"><%= item.stats %></P>
+                                <% if (item.stats) { %> <!-- Check if stats exist -->
+                                    <% item.stats.split('\n').forEach(function(stat) { %>
+                                        <p class="card-text"><%= stat %></p>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p class="card-text">No stats available</p>
+                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -87,7 +104,13 @@
                             <div class="card-body">
                                 <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
                                 <p class="card-text">Current Stock: <%= item.count %></p>
-                                <P class="card-text"><%= item.stats %></P>
+                                <% if (item.stats) { %> <!-- Check if stats exist -->
+                                    <% item.stats.split('\n').forEach(function(stat) { %>
+                                        <p class="card-text"><%= stat %></p>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p class="card-text">No stats available</p>
+                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -105,7 +128,13 @@
                             <div class="card-body">
                                 <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
                                 <p class="card-text">Current Stock: <%= item.count %></p>
-                                <P class="card-text"><%= item.stats %></P>
+                                <% if (item.stats) { %> <!-- Check if stats exist -->
+                                    <% item.stats.split('\n').forEach(function(stat) { %>
+                                        <p class="card-text"><%= stat %></p>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p class="card-text">No stats available</p>
+                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -124,6 +153,30 @@
                                 <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
                                 <p class="card-text">Current Stock: <%= item.count %></p>
                                 <P class="card-text"><%= item.stats %></P>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <!-- Recipes Tab -->
+        <div class="tab-pane fade" id="recipes" role="tabpanel" aria-labelledby="recipes-tab">
+            <div class="row mt-4">
+                <% recipeItems.forEach(function(item) { %>
+                    <div class="col-md-4 mb-4 item" data-name="<%= item.name %>">
+                        <div class="card bg-dark text-white" data-toggle="modal"
+                            data-target="#requestModal-<%= item.id %>">
+                            <div class="card-body">
+                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
+                                <p class="card-text">Current Stock: <%= item.count %></p>
+                                <% if (item.stats) { %> <!-- Check if stats exist -->
+                                    <% item.stats.split('\n').forEach(function(stat) { %>
+                                        <p class="card-text"><%= stat %></p>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p class="card-text">No stats available</p>
+                                <% } %>
                             </div>
                         </div>
                     </div>

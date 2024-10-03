@@ -52,7 +52,10 @@ function extractBankItemsFromLuaString(luaString) {
                     const valueNode = field.value;
                     switch (valueNode.type) {
                         case 'StringLiteral':
-                            value = valueNode.raw.replace(/(^"|"$)/g, '').replace(/,/g, '\n');
+                            value = valueNode.raw
+                                .replace(/(^"|"$)/g, '') // Remove surrounding quotes
+                                .replace(/\\n/g, '\n') // Replace escaped \n with actual new lines
+                                .replace(/,/g, '\n'); // Replace commas with new lines (if needed)
                             break;
                         case 'NumericLiteral':
                             value = valueNode.value;
@@ -64,7 +67,7 @@ function extractBankItemsFromLuaString(luaString) {
                             if (key === 'stats') {
                                 const statsArray = valueNode.fields.map(f => {
                                     if (f.type === 'TableValue' && f.value.type === 'StringLiteral') {
-                                        return f.value.raw.replace(/(^"|"$)/g, '').replace(/,/g, '\n');
+                                        return f.value.raw.replace(/(^"|"$)/g, '').replace(/\\n/g, '\n').replace(/,/g, '\n');
                                     }
                                     return null;
                                 }).filter(v => v !== null);

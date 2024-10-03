@@ -455,6 +455,7 @@ router.get('/bank', isAuthenticated, async (req, res) => {
         const armorItems = allItems.filter(item => item.type === 'Armor');
         const consumableItems = allItems.filter(item => item.type === 'Consumable');
         const materialItems = allItems.filter(item => item.type === 'Trade Goods');
+        const recipeItems = allItems.filter(item => item.type === 'Recipe');
         const bagItems = allItems.filter(item => item.type === 'Container');
 
         res.render('base', {
@@ -465,6 +466,7 @@ router.get('/bank', isAuthenticated, async (req, res) => {
             armorItems,
             consumableItems,
             materialItems,
+            recipeItems,
             bagItems,
             claimedCharacters
         });
@@ -473,6 +475,7 @@ router.get('/bank', isAuthenticated, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 // POST route to handle item requests
 router.post('/request-item', isAuthenticated, async (req, res) => {
     const { item_id, character_id, quantity } = req.body;
