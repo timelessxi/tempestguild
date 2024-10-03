@@ -371,16 +371,35 @@ router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single
     });
 });
 
-
 router.get('/roster', isAuthenticated, async (req, res) => {
     try {
-        // Fetch claimed users with their claimed characters
-        const [claimedUsers] = await db.query(`
-            SELECT u.id AS user_id, u.username, u.email, u.profile_image, u.bio, c.name AS character_name, c.class, c.level
-            FROM users u
-            JOIN characters c ON u.id = c.user_id
-            WHERE c.status = 'claimed'
-            ORDER BY u.username
+        // Fetch users with all their characters and professions
+        const [rows] = await db.query(`
+            SELECT 
+                u.id AS user_id, 
+                u.username, 
+                u.email, 
+                u.profile_image, 
+                u.bio, 
+                u.main_character,
+                c.id AS character_id, 
+                c.name AS character_name, 
+                c.class, 
+                c.level,
+                p.name AS profession_name, 
+                cp.profession_level
+            FROM 
+                users u
+            LEFT JOIN 
+                characters c ON u.id = c.user_id
+            LEFT JOIN 
+                character_professions cp ON cp.character_id = c.id
+            LEFT JOIN 
+                professions p ON cp.profession_id = p.id
+            WHERE 
+                u.status = 'approved'
+            ORDER BY 
+                u.username, c.id;
         `);
 
         function getClassColor(characterClass) {
@@ -398,9 +417,12 @@ router.get('/roster', isAuthenticated, async (req, res) => {
             return classColors[characterClass] || '#FFFFFF'; // Default to white if class not found
         }
 
-        // Group characters by users
+        // Initialize an empty object to hold users
         const users = {};
-        claimedUsers.forEach(row => {
+
+        // Process each row from the query result
+        rows.forEach(row => {
+            // Check if the user already exists in the users object
             if (!users[row.user_id]) {
                 users[row.user_id] = {
                     id: row.user_id,
@@ -408,22 +430,59 @@ router.get('/roster', isAuthenticated, async (req, res) => {
                     email: row.email,
                     profile_image: row.profile_image,
                     bio: row.bio,
-                    characters: []
+                    main_character_name: row.main_character,
+                    characters: {} // Keyed by character_id
                 };
             }
-            users[row.user_id].characters.push({
-                name: row.character_name,
-                class: row.class,
-                level: row.level
-            });
+
+            // If the character exists
+            if (row.character_id) {
+                // Check if the character has already been added
+                if (!users[row.user_id].characters[row.character_id]) {
+                    // Initialize the character
+                    users[row.user_id].characters[row.character_id] = {
+                        id: row.character_id,
+                        name: row.character_name,
+                        class: row.class,
+                        level: row.level,
+                        professions: []
+                    };
+                }
+
+                // If there is profession data, add it to the character's professions
+                if (row.profession_name) {
+                    users[row.user_id].characters[row.character_id].professions.push({
+                        name: row.profession_name,
+                        level: row.profession_level
+                    });
+                }
+            }
         });
 
-        // Sort characters by level for each user
-        Object.keys(users).forEach(userId => {
-            users[userId].characters.sort((a, b) => b.level - a.level); // Sort by level descending
+        // For each user, assign main_character
+        Object.values(users).forEach(user => {
+            const characterArray = Object.values(user.characters);
+
+            // Find main character by name
+            if (user.main_character_name) {
+                user.main_character = characterArray.find(c => c.name === user.main_character_name);
+            }
+
+            // If main_character not set or not found, use first character if available
+            if (!user.main_character && characterArray.length > 0) {
+                user.main_character = characterArray[0];
+            }
+
+            // If main_character is assigned, ensure professions are collected
+            if (user.main_character) {
+                // No action needed since professions are already collected during processing
+            } else {
+                // User has no characters
+                user.main_character = null;
+            }
         });
 
-        // Convert the object to an array
+        // Convert users object to array
         const claimedUsersArray = Object.values(users);
 
         // Fetch unclaimed characters (characters not linked to any user)

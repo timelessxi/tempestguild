@@ -84,42 +84,58 @@
                                                     <p><strong>Level <%= character.level %></strong>
                                                         <%= character.class %>
                                                     </p>
+                                                    <!-- Place the code snippet here -->
+                                                    <!-- Indicate Main Character -->
+                                                    <% if (user.main_character===character.name) { %>
+                                                        <p><span class="badge badge-primary">Main Character</span></p>
+                                                        <% } else if (loggedInUserId===user.id) { %>
+                                                            <!-- Set as Main Character Button -->
+                                                            <form action="/profile/<%= user.id %>/set-main-character"
+                                                                method="POST">
+                                                                <input type="hidden" name="character_id"
+                                                                    value="<%= character.id %>">
+                                                                <button type="submit" class="btn btn-primary mb-2">Set
+                                                                    as Main Character</button>
+                                                            </form>
+                                                            <% } %>
+                                                                <!-- Professions Section -->
+                                                                <% const charProfessions=professions.filter(p=>
+                                                                    p.character_id ===
+                                                                    character.id);
+                                                                    %>
+                                                                    <% if (charProfessions.length> 0) { %>
+                                                                        <table class="table table-dark table-striped">
+                                                                            <tbody>
+                                                                                <% charProfessions.forEach(profession=>
+                                                                                    { %>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <%= profession.name %>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <%= profession.profession_level
+                                                                                                %> / 300
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    <% }) %>
+                                                                            </tbody>
+                                                                        </table>
+                                                                        <% } else { %>
+                                                                            <p>No professions listed.</p>
+                                                                            <% } %>
 
-                                                    <!-- Professions Section -->
-                                                    <% const charProfessions=professions.filter(p=> p.character_id ===
-                                                        character.id);
-                                                        %>
-                                                        <% if (charProfessions.length> 0) { %>
-                                                            <table class="table table-dark table-striped">
-                                                                <tbody>
-                                                                    <% charProfessions.forEach(profession=> { %>
-                                                                        <tr>
-                                                                            <td>
-                                                                                <%= profession.name %>
-                                                                            </td>
-                                                                            <td>
-                                                                                <%= profession.profession_level %> / 300
-                                                                            </td>
-                                                                        </tr>
-                                                                        <% }) %>
-                                                                </tbody>
-                                                            </table>
-                                                            <% } else { %>
-                                                                <p>No professions listed.</p>
-                                                                <% } %>
-
-                                                                    <!-- Add/Update Profession Button -->
-                                                                    <% if (loggedInUserId===user.id) { %>
-                                                                        <button type="button"
-                                                                            class="btn btn-success mb-3"
-                                                                            data-toggle="modal"
-                                                                            data-target="#professionModal<%= character.id %>">
-                                                                            Add/Update Profession
-                                                                        </button>
+                                                                                <!-- Add/Update Profession Button -->
+                                                                                <% if (loggedInUserId===user.id) { %>
+                                                                                    <button type="button"
+                                                                                        class="btn btn-success mb-3"
+                                                                                        data-toggle="modal"
+                                                                                        data-target="#professionModal<%= character.id %>">
+                                                                                        Add/Update Profession
+                                                                                    </button>
 
 
-                                                                        <% } %>
-                                                                            <!-- End of Add/Update Profession Button -->
+                                                                                    <% } %>
+                                                                                        <!-- End of Add/Update Profession Button -->
                                                 </div> <!-- .card-body -->
                                             </div> <!-- .card -->
                                         </div> <!-- .col-md-6 -->

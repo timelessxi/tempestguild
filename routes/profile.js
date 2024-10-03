@@ -125,6 +125,40 @@ router.post('/:id/edit', async (req, res) => {
     }
 });
 
+// POST route to set the main character
+router.post('/:id/set-main-character', async (req, res) => {
+    const userId = req.params.id;
+    const { character_id } = req.body;
+
+    try {
+        // Ensure only the logged-in user can update their own profile
+        if (req.session.userId !== parseInt(userId)) {
+            return res.status(403).send('You are not authorized to update this profile.');
+        }
+
+        // Verify that the character belongs to the user
+        const [characterResult] = await db.query(
+            'SELECT * FROM characters WHERE id = ? AND user_id = ?',
+            [character_id, userId]
+        );
+
+        const character = characterResult[0];
+
+        if (!character) {
+            return res.status(400).send('Invalid character selection.');
+        }
+
+        // Update the user's main_character field
+        await db.query('UPDATE users SET main_character = ? WHERE id = ?', [character.name, userId]);
+
+        // Redirect back to the profile page
+        res.redirect(`/profile/${userId}`);
+    } catch (error) {
+        console.error('Error setting main character:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Define storage strategy for multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
