@@ -52,18 +52,18 @@ router.post('/:id/update-profession', async (req, res) => {
     try {
         // Check if the profession already exists for the character
         const [existingProfession] = await db.query(
-            'SELECT * FROM character_professions WHERE character_id = ? AND profession_id = ?', 
+            'SELECT * FROM character_professions WHERE character_id = ? AND profession_id = ?',
             [character_id, profession_id]
         );
 
         if (existingProfession.length > 0) {
             // Update the profession level if it exists
-            await db.query('UPDATE character_professions SET profession_level = ? WHERE character_id = ? AND profession_id = ?', 
-                           [profession_level, character_id, profession_id]);
+            await db.query('UPDATE character_professions SET profession_level = ? WHERE character_id = ? AND profession_id = ?',
+                [profession_level, character_id, profession_id]);
         } else {
             // Insert new profession if it does not exist
-            await db.query('INSERT INTO character_professions (character_id, profession_id, profession_level) VALUES (?, ?, ?)', 
-                           [character_id, profession_id, profession_level]);
+            await db.query('INSERT INTO character_professions (character_id, profession_id, profession_level) VALUES (?, ?, ?)',
+                [character_id, profession_id, profession_level]);
         }
 
         res.redirect(`/profile/${userId}`);
@@ -116,6 +116,41 @@ router.post('/:id/edit', async (req, res) => {
         res.redirect(`/profile/${userId}`);
     } catch (error) {
         console.error('Error updating profile:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+const multer = require('multer');
+
+// Define storage strategy for multer
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/profiles'); // Make sure this directory exists
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname); // Generate unique filenames
+    }
+});
+
+// Initialize the upload middleware
+const upload = multer({ storage: storage });
+// Route to handle profile image upload
+router.post('/:id/upload-image', upload.single('profileImage'), async (req, res) => {
+    const userId = req.params.id;
+
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+
+    const imagePath = '/uploads/profiles/' + req.file.filename; // Correct the path
+
+    try {
+        // Update user's profile image path in the database
+        await db.query('UPDATE users SET profile_image = ? WHERE id = ?', [imagePath, userId]);
+
+        // Redirect back to the profile page after successful upload
+        res.redirect(`/profile/${userId}`);
+    } catch (error) {
+        console.error('Error updating profile image:', error);
         res.status(500).send('Internal Server Error');
     }
 });
