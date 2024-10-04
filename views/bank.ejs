@@ -1,4 +1,15 @@
 <div class="container">
+    <% if (error.length > 0) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (success.length > 0) { %>
+        <div class="alert alert-success" role="alert">
+            <%= success %>
+        </div>
+    <% } %>
     <h1 class="text-center my-4">The Guild Bank</h1>
 
     <!-- Search Box -->
@@ -33,8 +44,8 @@
                 aria-controls="materials" aria-selected="false">Materials</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="recipes-tab" data-toggle="tab" href="#recipes" role="tab"
-                aria-controls="recipes" aria-selected="false">Recipes</a>
+            <a class="nav-link" id="recipes-tab" data-toggle="tab" href="#recipes" role="tab" aria-controls="recipes"
+                aria-selected="false">Recipes</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="bags-tab" data-toggle="tab" href="#bags" role="tab" aria-controls="bags"
@@ -53,19 +64,28 @@
                         <div class="card bg-dark text-white" data-toggle="modal"
                             data-target="#requestModal-<%= item.id %>">
                             <div class="card-body">
-                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
-                                <p class="card-text stock">Current Stock: <%= item.count %></p>
+                                <h5 class="card-title <%= item.rarity_class %>">
+                                    <%= item.name %>
+                                </h5>
+                                <p class="card-text stock">
+                                    Current Stock: <%= item.adjusted_stock %>
+                                        <% if (item.pending_quantity> 0) { %>
+                                            (Pending: <%= item.pending_quantity %>)
+                                                <% } %>
+                                </p>
                                 <% if (item.stats) { %> <!-- Check if stats exist -->
                                     <% item.stats.split('\n').forEach(function(stat) { %>
-                                        <p class="card-text"><%= stat %></p>
-                                    <% }); %>
-                                <% } else { %>
-                                    <p class="card-text">No stats available</p>
-                                <% } %>
+                                        <p class="card-text">
+                                            <%= stat %>
+                                        </p>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <p class="card-text">No stats available</p>
+                                                <% } %>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
 
@@ -78,19 +98,28 @@
                         <div class="card bg-dark text-white" data-toggle="modal"
                             data-target="#requestModal-<%= item.id %>">
                             <div class="card-body">
-                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
-                                <p class="card-text stock">Current Stock: <%= item.count %></p>
+                                <h5 class="card-title <%= item.rarity_class %>">
+                                    <%= item.name %>
+                                </h5>
+                                <p class="card-text stock">
+                                    Current Stock: <%= item.adjusted_stock %>
+                                        <% if (item.pending_quantity> 0) { %>
+                                            (Pending: <%= item.pending_quantity %>)
+                                                <% } %>
+                                </p>
                                 <% if (item.stats) { %> <!-- Check if stats exist -->
                                     <% item.stats.split('\n').forEach(function(stat) { %>
-                                        <p class="card-text"><%= stat %></p>
-                                    <% }); %>
-                                <% } else { %>
-                                    <p class="card-text">No stats available</p>
-                                <% } %>
+                                        <p class="card-text">
+                                            <%= stat %>
+                                        </p>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <p class="card-text">No stats available</p>
+                                                <% } %>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
 
@@ -102,19 +131,28 @@
                         <div class="card bg-dark text-white" data-toggle="modal"
                             data-target="#requestModal-<%= item.id %>">
                             <div class="card-body">
-                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
-                                <p class="card-text stock">Current Stock: <%= item.count %></p>
+                                <h5 class="card-title <%= item.rarity_class %>">
+                                    <%= item.name %>
+                                </h5>
+                                <p class="card-text stock">
+                                    Current Stock: <%= item.adjusted_stock %>
+                                        <% if (item.pending_quantity> 0) { %>
+                                            (Pending: <%= item.pending_quantity %>)
+                                                <% } %>
+                                </p>
                                 <% if (item.stats) { %> <!-- Check if stats exist -->
                                     <% item.stats.split('\n').forEach(function(stat) { %>
-                                        <p class="card-text"><%= stat %></p>
-                                    <% }); %>
-                                <% } else { %>
-                                    <p class="card-text">No stats available</p>
-                                <% } %>
+                                        <p class="card-text">
+                                            <%= stat %>
+                                        </p>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <p class="card-text">No stats available</p>
+                                                <% } %>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
 
@@ -126,19 +164,28 @@
                         <div class="card bg-dark text-white" data-toggle="modal"
                             data-target="#requestModal-<%= item.id %>">
                             <div class="card-body">
-                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
-                                <p class="card-text stock">Current Stock: <%= item.count %></p>
+                                <h5 class="card-title <%= item.rarity_class %>">
+                                    <%= item.name %>
+                                </h5>
+                                <p class="card-text stock">
+                                    Current Stock: <%= item.adjusted_stock %>
+                                        <% if (item.pending_quantity> 0) { %>
+                                            (Pending: <%= item.pending_quantity %>)
+                                                <% } %>
+                                </p>
                                 <% if (item.stats) { %> <!-- Check if stats exist -->
                                     <% item.stats.split('\n').forEach(function(stat) { %>
-                                        <p class="card-text"><%= stat %></p>
-                                    <% }); %>
-                                <% } else { %>
-                                    <p class="card-text">No stats available</p>
-                                <% } %>
+                                        <p class="card-text">
+                                            <%= stat %>
+                                        </p>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <p class="card-text">No stats available</p>
+                                                <% } %>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
 
@@ -150,13 +197,22 @@
                         <div class="card bg-dark text-white" data-toggle="modal"
                             data-target="#requestModal-<%= item.id %>">
                             <div class="card-body">
-                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
-                                <p class="card-text stock">Current Stock: <%= item.count %></p>
-                                <P class="card-text"><%= item.stats %></P>
+                                <h5 class="card-title <%= item.rarity_class %>">
+                                    <%= item.name %>
+                                </h5>
+                                <p class="card-text stock">
+                                    Current Stock: <%= item.adjusted_stock %>
+                                        <% if (item.pending_quantity> 0) { %>
+                                            (Pending: <%= item.pending_quantity %>)
+                                                <% } %>
+                                </p>
+                                <P class="card-text">
+                                    <%= item.stats %>
+                                </P>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
 
@@ -168,19 +224,28 @@
                         <div class="card bg-dark text-white" data-toggle="modal"
                             data-target="#requestModal-<%= item.id %>">
                             <div class="card-body">
-                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
-                                <p class="card-text stock">Current Stock: <%= item.count %></p>
+                                <h5 class="card-title <%= item.rarity_class %>">
+                                    <%= item.name %>
+                                </h5>
+                                <p class="card-text stock">
+                                    Current Stock: <%= item.adjusted_stock %>
+                                        <% if (item.pending_quantity> 0) { %>
+                                            (Pending: <%= item.pending_quantity %>)
+                                                <% } %>
+                                </p>
                                 <% if (item.stats) { %> <!-- Check if stats exist -->
                                     <% item.stats.split('\n').forEach(function(stat) { %>
-                                        <p class="card-text"><%= stat %></p>
-                                    <% }); %>
-                                <% } else { %>
-                                    <p class="card-text">No stats available</p>
-                                <% } %>
+                                        <p class="card-text">
+                                            <%= stat %>
+                                        </p>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <p class="card-text">No stats available</p>
+                                                <% } %>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
 
@@ -192,13 +257,22 @@
                         <div class="card bg-dark text-white" data-toggle="modal"
                             data-target="#requestModal-<%= item.id %>">
                             <div class="card-body">
-                                <h5 class="card-title <%= item.rarity_class %>"><%= item.name %></h5>
-                                <p class="card-text stock">Current Stock: <%= item.count %></p>
-                                <P class="card-text"><%= item.stats %></P>
+                                <h5 class="card-title <%= item.rarity_class %>">
+                                    <%= item.name %>
+                                </h5>
+                                <p class="card-text stock">
+                                    Current Stock: <%= item.adjusted_stock %>
+                                        <% if (item.pending_quantity> 0) { %>
+                                            (Pending: <%= item.pending_quantity %>)
+                                                <% } %>
+                                </p>
+                                <P class="card-text">
+                                    <%= item.stats %>
+                                </P>
                             </div>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
         </div>
     </div>
@@ -210,7 +284,8 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content bg-dark text-white">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="requestModalLabel-<%= item.id %>">Request <%= item.name %></h5>
+                        <h5 class="modal-title" id="requestModalLabel-<%= item.id %>">Request <%= item.name %>
+                        </h5>
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -223,20 +298,21 @@
                             <!-- Select Character -->
                             <div class="form-group">
                                 <label for="characterSelect-<%= item.id %>">Select Character</label>
-                                <select class="form-control" id="characterSelect-<%= item.id %>" name="character_id" required>
+                                <select class="form-control" id="characterSelect-<%= item.id %>" name="character_id"
+                                    required>
                                     <% claimedCharacters.forEach(function(character) { %>
                                         <option value="<%= character.id %>">
                                             <%= character.name %> (Level <%= character.level %>)
                                         </option>
-                                    <% }); %>
+                                        <% }); %>
                                 </select>
                             </div>
 
                             <!-- Select Quantity -->
                             <div class="form-group">
                                 <label for="quantity-<%= item.id %>">Quantity</label>
-                                <input type="number" class="form-control" id="quantity-<%= item.id %>"
-                                    name="quantity" min="1" max="<%= item.count %>" required>
+                                <input type="number" class="form-control" id="quantity-<%= item.id %>" name="quantity"
+                                    min="1" max="<%= item.count %>" required>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -247,7 +323,7 @@
                 </div>
             </div>
         </div>
-    <% }); %>
+        <% }); %>
 
 </div>
 

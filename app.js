@@ -3,6 +3,7 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 const db = require('./config/db'); // Your database connection
+const flash = require('connect-flash'); // Flash messages
 
 
 
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json()); // For parsing JSON data
 app.use(express.urlencoded({ extended: true })); // For parsing form data
+app.use(flash()); // Flash messages
 
 // Setting up EJS as view engine
 app.set('view engine', 'ejs');
@@ -59,6 +61,11 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
 
 // Use routes
 app.use('/', authRoutes); // Authentication routes for login, register, logout

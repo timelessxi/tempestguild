@@ -466,7 +466,13 @@ router.get('/roster', isAuthenticated, async (req, res) => {
 // Guild bank page route
 router.get('/bank', isAuthenticated, async (req, res) => {
     try {
-        const [allItems] = await db.query('SELECT * FROM guild_bank');
+        const [allItems] = await db.query(`
+            SELECT gb.*, 
+                   IFNULL(SUM(CASE WHEN ir.status = 'pending' THEN ir.quantity ELSE 0 END), 0) AS pending_quantity
+            FROM guild_bank gb
+            LEFT JOIN item_requests ir ON gb.id = ir.item_id
+            GROUP BY gb.id
+        `);
         const [claimedCharacters] = await db.query('SELECT id, name FROM characters WHERE status = ?', ['claimed']);
         // Map rarity numbers to names and CSS classes
         const rarityMap = {
@@ -480,6 +486,7 @@ router.get('/bank', isAuthenticated, async (req, res) => {
         allItems.forEach(item => {
             item.rarity_name = rarityMap[item.rarity]?.name || 'Unknown';
             item.rarity_class = rarityMap[item.rarity]?.class || '';
+            item.adjusted_stock = item.count - item.pending_quantity;
         });
 
         // Categorize items for the tabs
@@ -514,6 +521,29 @@ router.post('/request-item', isAuthenticated, async (req, res) => {
     const user_id = req.session.userId;
 
     try {
+        // Fetch the current stock and pending requests for the item
+        const [item] = await db.query(`
+            SELECT gb.*, 
+                   IFNULL(SUM(CASE WHEN ir.status = 'pending' THEN ir.quantity ELSE 0 END), 0) AS pending_quantity
+            FROM guild_bank gb
+            LEFT JOIN item_requests ir ON gb.id = ir.item_id
+            WHERE gb.id = ?
+            GROUP BY gb.id
+        `, [item_id]);
+
+        if (!item || item.length === 0) {
+            req.flash('error', 'Item not found.');
+            return res.redirect('/bank');
+        }
+
+        const adjusted_stock = item[0].count - item[0].pending_quantity;
+
+        // Check if the requested quantity is greater than the available stock
+        if (quantity > adjusted_stock) {
+            req.flash('error', 'Request exceeds available stock.');
+            return res.redirect('/bank');
+        }
+
         // Insert the new item request into the database
         await db.query('INSERT INTO item_requests (user_id, character_id, item_id, quantity) VALUES (?, ?, ?, ?)', [
             user_id,
@@ -522,10 +552,12 @@ router.post('/request-item', isAuthenticated, async (req, res) => {
             quantity
         ]);
 
-        res.redirect('/bank'); // Redirect back to the bank page after request
+        req.flash('success', 'Item request submitted successfully.');
+        res.redirect('/bank');
     } catch (error) {
         console.error('Error submitting item request:', error);
-        res.status(500).send('Internal Server Error');
+        req.flash('error', 'An error occurred while submitting your request.');
+        res.redirect('/bank');
     }
 });
 
