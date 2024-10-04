@@ -134,6 +134,11 @@ hr {
     margin-bottom: 5px;
 }
 
+.stock {
+    color: rgb(226, 35, 92);
+    font-weight: bold;
+}
+
 .card-text:last-child {
     margin-bottom: 0;
 }
