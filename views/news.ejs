@@ -1,13 +1,60 @@
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
 <div class="container">
-    <h1 class="text-center my-4">Guild News</h1>
+    <h1 class="text-center my-4">Guild News & Events</h1>
+        <!-- Calendar Container -->
+        <div id="calendar"></div>
 
     <% newsArticles.forEach(article => { %>
     <div class="news-article mb-4">
         <h3><%= article.title %></h3>
         <small class="text-muted">Posted on <%= new Date(article.created_at).toLocaleDateString() %></small>
-        <!-- Use <%- %> to render HTML content without escaping it -->
         <p><%- article.content %></p>
         <hr>
     </div>
     <% }) %>
+
+
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            editable: true,
+            events: '/events', // This will fetch existing events
+            dateClick: function(info) {
+                // Custom modal or prompt for adding title and content
+                const eventTitle = prompt('Enter event title:');
+                if (eventTitle) {
+                    const eventContent = prompt('Enter event description:');
+                    axios.post('/events', {
+                        title: eventTitle,
+                        event_date: info.dateStr,
+                        content: eventContent || ''  // Optional content
+                    })
+                    .then(response => {
+                        if (response.data.success) {
+                            alert('Event created successfully!');
+                            calendar.addEvent(response.data.event); // Add event to calendar
+                        } else {
+                            alert('Error creating event.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error creating event:', error);
+                        alert('An error occurred while creating the event.');
+                    });
+                }
+            }
+        });
+
+        calendar.render();
+    });
+</script>
+

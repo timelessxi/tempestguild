@@ -46,6 +46,8 @@ router.get('/admin', isAuthenticated, isAdminOrGuildMaster, async (req, res) => 
             GROUP BY u.id
         `);
 
+        const [events] = await db.query('SELECT * FROM events ORDER BY event_date ASC');
+
         res.render('base', { 
             title: 'Admin - Tempest Guild', 
             page: 'admin', 
@@ -54,7 +56,8 @@ router.get('/admin', isAuthenticated, isAdminOrGuildMaster, async (req, res) => 
             pendingUsers, 
             roles, 
             itemRequests, 
-            users 
+            users,
+            events
         });
     } catch (error) {
         console.error('Error fetching admin data:', error);
@@ -564,5 +567,69 @@ router.post('/claim-character/:id', isAuthenticated, async (req, res) => {
         res.status(500).json({ success: false, message: 'An error occurred while claiming the character.' });
     }
 });
+
+router.get('/events', async (req, res) => {
+    try {
+        const [events] = await db.query('SELECT id, title, event_date AS date, content FROM events');
+        res.json(events);
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        res.status(500).json({ success: false, message: 'Error fetching events' });
+    }
+});
+
+router.post('/events', isAuthenticated, async (req, res) => {
+    const { title, event_date, content } = req.body;
+
+    try {
+        const [result] = await db.query('INSERT INTO events (title, content, event_date) VALUES (?, ?, ?)', [title, content, event_date]);
+        const newEvent = {
+            id: result.insertId,
+            title: title,
+            date: event_date,
+            content: content
+        };
+        res.status(201).json({ success: true, event: newEvent });
+    } catch (error) {
+        console.error('Error creating event:', error);
+        res.status(500).json({ success: false, message: 'Error creating event' });
+    }
+});
+
+router.post('/admin/events/add', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
+    const { title, content, event_date } = req.body;
+    try {
+        await db.query('INSERT INTO events (title, content, event_date, created_at) VALUES (?, ?, ?, NOW())', [title, content, event_date]);
+        res.redirect('/admin');
+    } catch (error) {
+        console.error('Error adding event:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.post('/admin/events/edit/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
+    const { title, content, event_date } = req.body;
+    const eventId = req.params.id;
+    try {
+        await db.query('UPDATE events SET title = ?, content = ?, event_date = ?, updated_at = NOW() WHERE id = ?', [title, content, event_date, eventId]);
+        res.redirect('/admin');
+    } catch (error) {
+        console.error('Error updating event:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+router.post('/admin/events/delete/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
+    const eventId = req.params.id;
+    try {
+        await db.query('DELETE FROM events WHERE id = ?', [eventId]);
+        res.redirect('/admin');
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
 
 module.exports = router;
