@@ -1,9 +1,9 @@
 const db = require('../config/db'); // Ensure this points to your database configuration
 
-async function moveCharacterToUser(userId, characterName) {
+async function moveCharacterToUser(userId, characterId) {
     try {
         // Check if the character exists in the characters table with 'unclaimed' status
-        const [character] = await db.query('SELECT * FROM characters WHERE name = ? AND status = ?', [characterName, 'unclaimed']);
+        const [character] = await db.query('SELECT * FROM characters WHERE id = ? AND status = ?', [characterId, 'unclaimed']);
         if (!character || character.length === 0) {
             return { success: false, message: 'Character not found or already claimed' };
         }
@@ -12,7 +12,7 @@ async function moveCharacterToUser(userId, characterName) {
         await db.query('UPDATE characters SET user_id = ?, status = ? WHERE id = ?', [
             userId,
             'claimed',
-            character[0].id
+            characterId
         ]);
 
         return { success: true, message: 'Character moved successfully' };

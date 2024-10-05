@@ -21,10 +21,14 @@ router.get('/:id', async (req, res) => {
             JOIN professions p ON cp.profession_id = p.id
             WHERE cp.character_id IN (SELECT id FROM characters WHERE user_id = ?)
         `, [userId]);
-
         // Fetch the list of available professions
         const [availableProfessions] = await db.query('SELECT * FROM professions');
-
+        const [loggedInUserRole] = await db.query(`
+            SELECT r.name 
+            FROM users u 
+            JOIN roles r ON u.role_id = r.id 
+            WHERE u.id = ?
+        `, [req.session.userId]);
         if (!user || user.length === 0) {
             return res.status(404).send('User not found');
         }
@@ -37,7 +41,8 @@ router.get('/:id', async (req, res) => {
             characters,
             professions,
             availableProfessions,  // Pass available professions to the template
-            loggedInUserId: req.session.userId // Pass the session userId
+            loggedInUserId: req.session.userId, // Pass the session userId
+            loggedInUserRole: loggedInUserRole[0].name, // Pass the logged-in user's role to the template
         });
     } catch (error) {
         console.error('Error fetching user profile:', error);

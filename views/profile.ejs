@@ -136,6 +136,21 @@
 
                                                                                     <% } %>
                                                                                         <!-- End of Add/Update Profession Button -->
+                                                                                        <!-- Unclaim Character Button -->
+                                                                                        <% if
+                                                                                            (loggedInUserRole==='Site Admin'
+                                                                                            ||
+                                                                                            loggedInUserRole==='Guildmaster'
+                                                                                            ) { %>
+                                                                                            <form
+                                                                                                action="/profile/<%= character.id %>/unclaim-character"
+                                                                                                method="POST">
+                                                                                                <button type="submit"
+                                                                                                    class="btn btn-danger mt-2">Unclaim
+                                                                                                    Character</button>
+                                                                                            </form>
+                                                                                            <% } %>
+
                                                 </div> <!-- .card-body -->
                                             </div> <!-- .card -->
                                         </div> <!-- .col-md-6 -->

@@ -561,8 +561,21 @@ router.post('/request-item', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/contact', (req, res) => {
-    res.render('base', { title: 'Contact Us - Tempest Guild', page: 'contact' });
+router.post('/claim-character/:id', isAuthenticated, async (req, res) => {
+    const characterId = req.params.id;
+    const userId = req.session.userId;
+
+    try {
+        const moveResult = await moveCharacterToUser(userId, characterId);
+        if (!moveResult.success) {
+            return res.status(400).json({ success: false, message: moveResult.message });
+        }
+
+        res.status(200).json({ success: true, message: 'Character claimed successfully!' });
+    } catch (error) {
+        console.error('Error claiming character:', error);
+        res.status(500).json({ success: false, message: 'An error occurred while claiming the character.' });
+    }
 });
 
 module.exports = router;
