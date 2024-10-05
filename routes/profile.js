@@ -5,6 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
+// Import the isAuthenticated middleware
+const { isAuthenticated } = require('./middleware');
 
 
 // View user profile
@@ -222,5 +224,22 @@ router.post('/:id/upload-image', upload.single('profileImage'), async (req, res)
     }
 });
 
+router.post('/:characterId/unclaim-character', isAuthenticated, async (req, res) => {
+    const characterId = req.params.characterId;
+
+    try {
+        // Fetch the user_id of the current profile
+        const [user] = await db.query('SELECT user_id FROM characters WHERE id = ?', [characterId]);
+        // Set user_id to NULL and status to 'unclaimed' for the given character
+        await db.query('UPDATE characters SET user_id = NULL, status = ? WHERE id = ?', ['unclaimed', characterId]);
+        
+        req.flash('success', 'Character unclaimed successfully!');
+        res.redirect(`/profile/${user[0].user_id}`);
+    } catch (error) {
+        console.error('Error unclaiming character:', error);
+        req.flash('error', 'An error occurred while unclaiming the character.');
+        res.redirect(`/profile/${user[0].user_id}`);
+    }
+});
 
 module.exports = router;
