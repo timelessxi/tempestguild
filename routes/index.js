@@ -570,8 +570,28 @@ router.post('/claim-character/:id', isAuthenticated, async (req, res) => {
 
 router.get('/events', async (req, res) => {
     try {
-        const [events] = await db.query('SELECT id, title, event_date AS date, content FROM events');
-        res.json(events);
+        const [events] = await db.query(`
+            SELECT 
+                e.id, 
+                e.title, 
+                e.content, 
+                e.event_date AS start,  /* FullCalendar requires the field to be 'start' */
+                u.username AS created_by 
+            FROM events e
+            JOIN users u ON e.created_by = u.id
+        `);
+
+        const formattedEvents = events.map(event => ({
+            id: event.id,
+            title: event.title,
+            start: event.start,  // FullCalendar uses 'start' for date and time
+            extendedProps: {
+                content: event.content,
+                created_by: event.created_by // Pass 'created_by' correctly
+            }
+        }));
+
+        res.json(formattedEvents);  // Return the correctly formatted events
     } catch (error) {
         console.error('Error fetching events:', error);
         res.status(500).json({ success: false, message: 'Error fetching events' });
@@ -580,9 +600,10 @@ router.get('/events', async (req, res) => {
 
 router.post('/events', isAuthenticated, async (req, res) => {
     const { title, event_date, content } = req.body;
+    const created_by = req.session.userId;
 
     try {
-        const [result] = await db.query('INSERT INTO events (title, content, event_date) VALUES (?, ?, ?)', [title, content, event_date]);
+        const [result] = await db.query('INSERT INTO events (title, content, event_date, created_by) VALUES (?, ?, ?, ?)', [title, content, event_date, created_by]);
         const newEvent = {
             id: result.insertId,
             title: title,

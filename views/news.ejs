@@ -39,7 +39,6 @@
                 <h1 class="text-center my-4">Guild Calendar</h1>
                 <div id="calendar"></div>
             </div>
-
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     var calendarEl = document.getElementById('calendar');
@@ -53,7 +52,11 @@
                             // Create a tooltip div
                             var tooltip = document.createElement('div');
                             tooltip.classList.add('tooltip-content');
-                            tooltip.innerHTML = info.event.extendedProps.content; // Event content from the database
+                            tooltip.innerHTML = `
+                                <strong>${info.event.title}</strong><br>
+                                ${info.event.extendedProps.content || 'No description'}<br>
+                                <em>${info.event.start.toLocaleString()}</em><br>
+                                <small>Created by: ${info.event.extendedProps.created_by}</small>`;
                             document.body.appendChild(tooltip);
 
                             // Position the tooltip based on mouse position
@@ -71,7 +74,6 @@
                                 document.body.removeChild(tooltip);
                             });
                         },
-
                         dateClick: function (info) {
                             var isAuthenticated = '<%= userId ? 'true' : 'false' %>';
 
@@ -79,23 +81,33 @@
                                 const eventTitle = prompt('Enter event title:');
                                 if (eventTitle) {
                                     const eventContent = prompt('Enter event description:');
-                                    axios.post('/events', {
-                                        title: eventTitle,
-                                        event_date: info.dateStr,
-                                        content: eventContent || '' // Optional content
-                                    })
-                                        .then(response => {
-                                            if (response.data.success) {
-                                                alert('Event created successfully!');
-                                                calendar.addEvent(response.data.event); // Add the event to the calendar
-                                            } else {
-                                                alert('Error creating event.');
-                                            }
+                                    const eventTime = prompt('Enter event time (HH:MM):');  // Request only the time in HH:MM format
+
+                                    if (eventTime) {
+                                        // Combine the clicked date with the input time to create a full datetime string
+                                        const eventDateTime = `${info.dateStr}T${eventTime}`;
+
+                                        // Post the new event to the server
+                                        axios.post('/events', {
+                                            title: eventTitle,
+                                            event_date: eventDateTime,
+                                            content: eventContent || '' // Optional content
                                         })
-                                        .catch(error => {
-                                            console.error('Error creating event:', error);
-                                            alert('An error occurred while creating the event.');
-                                        });
+                                            .then(response => {
+                                                if (response.data.success) {
+                                                    alert('Event created successfully!');
+                                                    calendar.addEvent(response.data.event); // Add the event to the calendar
+                                                } else {
+                                                    alert('Error creating event.');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error creating event:', error);
+                                                alert('An error occurred while creating the event.');
+                                            });
+                                    } else {
+                                        alert('You must enter a valid time to create an event.');
+                                    }
                                 }
                             } else {
                                 alert('You must be logged in to create events.');
@@ -104,14 +116,18 @@
                         }
                     });
 
+                    // Trigger calendar render when the calendar tab is clicked
                     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                         if (e.target.id === 'calendar-tab') {
                             calendar.render();
                         }
                     });
-                });
 
+                    // Initial render if the calendar tab is already active
+                    calendar.render();
+                });
             </script>
+
         </div>
     </div>
 </div>
