@@ -31,13 +31,13 @@ html, body {
     overflow-x: hidden;
 }
 
-.wrapper {
-    display: flex;
-    flex-direction: column;
+body {
     min-height: 100vh;
 }
 
-body {
+.wrapper {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
 }
 
@@ -189,7 +189,6 @@ hr {
     object-fit: cover;
 }
 
-
 /*=============================================
 =          Character Avatar Styles            =
 =============================================*/
@@ -330,11 +329,12 @@ hr {
     color: #ffffff;
 }
 
-/* Calender */
+/*=============================================
+=               Calendar Styles               =
+=============================================*/
 #calendar {
     max-width: 900px;
     margin: 0 auto;
-    /* Center the calendar */
 }
 
 .tooltip-content {
@@ -345,6 +345,7 @@ hr {
     border-radius: 4px;
     z-index: 1000;
 }
+
 /*=============================================
 =             Responsive Styles               =
 =============================================*/
