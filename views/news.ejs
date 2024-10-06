@@ -1,60 +1,134 @@
-<head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
 <div class="container">
     <h1 class="text-center my-4">Guild News & Events</h1>
-        <!-- Calendar Container -->
-        <div id="calendar"></div>
 
-    <% newsArticles.forEach(article => { %>
-    <div class="news-article mb-4">
-        <h3><%= article.title %></h3>
-        <small class="text-muted">Posted on <%= new Date(article.created_at).toLocaleDateString() %></small>
-        <p><%- article.content %></p>
-        <hr>
-    </div>
-    <% }) %>
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs" id="newsAndEventsTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="news-tab" data-toggle="tab" href="#news" role="tab" aria-controls="news"
+                aria-selected="true">News</a>
+        </li>
+        <!-- Only show next tab if logged in -->
+        <% if (userId) { %>
+            <li class="nav-item">
+                <a class="nav-link" id="calendar-tab" data-toggle="tab" href="#calendarTab" role="tab"
+                    aria-controls="calendarTab" aria-selected="false">Calendar</a>
+            </li>
+            <% } %>
 
+    </ul>
 
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+    <!-- Tabs Content -->
+    <div class="tab-content mt-4" id="newsAndEventsTabContent">
+        <!-- News Tab Content -->
+        <div class="tab-pane fade show active" id="news" role="tabpanel" aria-labelledby="news-tab">
+            <% newsArticles.forEach(article=> { %>
+                <div class="news-article mb-4">
+                    <h3>
+                        <%= article.title %>
+                    </h3>
+                    <small class="text-muted">Posted on <%= new Date(article.created_at).toLocaleDateString() %></small>
+                    <p><%- article.content %></p>
+                    <hr>
+                </div>
+                <% }) %>
+        </div>
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            selectable: true,
-            editable: true,
-            events: '/events', // This will fetch existing events
-            dateClick: function(info) {
-                // Custom modal or prompt for adding title and content
-                const eventTitle = prompt('Enter event title:');
-                if (eventTitle) {
-                    const eventContent = prompt('Enter event description:');
-                    axios.post('/events', {
-                        title: eventTitle,
-                        event_date: info.dateStr,
-                        content: eventContent || ''  // Optional content
-                    })
-                    .then(response => {
-                        if (response.data.success) {
-                            alert('Event created successfully!');
-                            calendar.addEvent(response.data.event); // Add event to calendar
-                        } else {
-                            alert('Error creating event.');
+        <!-- Calendar Tab Content -->
+        <div class="tab-pane fade" id="calendarTab" role="tabpanel" aria-labelledby="calendar-tab">
+            <div class="container">
+                <h1 class="text-center my-4">Guild Calendar</h1>
+                <div id="calendar"></div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var calendarEl = document.getElementById('calendar');
+
+                    var calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        events: '/events', // Fetch events from the server
+
+                        // When mouse enters an event, show a tooltip with the content
+                        eventMouseEnter: function (info) {
+                            // Create a tooltip div
+                            var tooltip = document.createElement('div');
+                            tooltip.classList.add('tooltip-content');
+                            tooltip.innerHTML = info.event.extendedProps.content; // Event content from the database
+                            document.body.appendChild(tooltip);
+
+                            // Position the tooltip based on mouse position
+                            tooltip.style.left = info.jsEvent.pageX + 10 + 'px';
+                            tooltip.style.top = info.jsEvent.pageY + 10 + 'px';
+                            tooltip.style.position = 'absolute';
+                            tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+                            tooltip.style.color = 'white';
+                            tooltip.style.padding = '5px';
+                            tooltip.style.borderRadius = '4px';
+                            tooltip.style.zIndex = '1000';
+
+                            // On mouse leave, remove the tooltip
+                            info.el.addEventListener('mouseleave', function () {
+                                document.body.removeChild(tooltip);
+                            });
+                        },
+
+                        dateClick: function (info) {
+                            var isAuthenticated = '<%= userId ? 'true' : 'false' %>';
+
+                            if (isAuthenticated === 'true') {
+                                const eventTitle = prompt('Enter event title:');
+                                if (eventTitle) {
+                                    const eventContent = prompt('Enter event description:');
+                                    axios.post('/events', {
+                                        title: eventTitle,
+                                        event_date: info.dateStr,
+                                        content: eventContent || '' // Optional content
+                                    })
+                                        .then(response => {
+                                            if (response.data.success) {
+                                                alert('Event created successfully!');
+                                                calendar.addEvent(response.data.event); // Add the event to the calendar
+                                            } else {
+                                                alert('Error creating event.');
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error creating event:', error);
+                                            alert('An error occurred while creating the event.');
+                                        });
+                                }
+                            } else {
+                                alert('You must be logged in to create events.');
+                                window.location.href = '/login'; // Redirect to login page
+                            }
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error creating event:', error);
-                        alert('An error occurred while creating the event.');
                     });
+
+                    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                        if (e.target.id === 'calendar-tab') {
+                            calendar.render();
+                        }
+                    });
+                });
+
+            </script>
+
+            <style>
+                #calendar {
+                    max-width: 900px;
+                    margin: 0 auto;
+                    /* Center the calendar */
                 }
-            }
-        });
 
-        calendar.render();
-    });
-</script>
-
+                .tooltip-content {
+                    position: absolute;
+                    background-color: rgba(0, 0, 0, 0.75);
+                    color: white;
+                    padding: 5px;
+                    border-radius: 4px;
+                    z-index: 1000;
+                }
+            </style>
+        </div>
+    </div>
+</div>

@@ -48,14 +48,14 @@ router.get('/admin', isAuthenticated, isAdminOrGuildMaster, async (req, res) => 
 
         const [events] = await db.query('SELECT * FROM events ORDER BY event_date ASC');
 
-        res.render('base', { 
-            title: 'Admin - Tempest Guild', 
-            page: 'admin', 
-            body: 'admin', 
-            newsArticles, 
-            pendingUsers, 
-            roles, 
-            itemRequests, 
+        res.render('base', {
+            title: 'Admin - Tempest Guild',
+            page: 'admin',
+            body: 'admin',
+            newsArticles,
+            pendingUsers,
+            roles,
+            itemRequests,
             users,
             events
         });
@@ -69,7 +69,7 @@ router.get('/admin', isAuthenticated, isAdminOrGuildMaster, async (req, res) => 
 router.get('/news', async (req, res) => {
     try {
         const [newsArticles] = await db.query('SELECT * FROM news_articles ORDER BY created_at DESC');
-        res.render('base', { title: 'Guild News', page: 'news', newsArticles });
+        res.render('base', { title: 'Guild News', page: 'news', newsArticles, user: req.user });
     } catch (error) {
         console.error('Error fetching news articles:', error);
         res.status(500).send('Internal Server Error');
@@ -316,10 +316,10 @@ router.post('/upload-bank', isAuthenticated, isAdminOrGuildMaster, upload.single
 
                 if (existingItem) {
                     // Item exists, check if we need to update it
-                    if (newItem.count !== existingItem.count || 
-                        newItem.type !== existingItem.type || 
-                        newItem.rarity !== existingItem.rarity || 
-                        newItem.subType !== existingItem.subType || 
+                    if (newItem.count !== existingItem.count ||
+                        newItem.type !== existingItem.type ||
+                        newItem.rarity !== existingItem.rarity ||
+                        newItem.subType !== existingItem.subType ||
                         newItem.stats !== existingItem.stats) {
                         // Update the item if there are changes
                         await db.query(
@@ -629,7 +629,9 @@ router.post('/admin/events/delete/:id', isAuthenticated, isAdminOrGuildMaster, a
     }
 });
 
-
-
+// Contact page route
+router.get('/contact', (req, res) => {
+    res.render('base', { title: 'Contact Us - Tempest Guild', page: 'contact' });
+});
 
 module.exports = router;
