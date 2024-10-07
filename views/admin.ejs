@@ -436,4 +436,31 @@
 <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
 <script>
     CKEDITOR.replace('news-content');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Handle approval form submissions for pending registrations
+        document.querySelectorAll('form[action*="/admin/users/approve/"]').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+                const formData = new FormData(form);
+                const actionUrl = form.action;
+
+                // Send form data using fetch API
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => { throw new Error(text); });
+                        }
+                        // Redirect or refresh on success
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.message}`); // Display the error message
+                    });
+            });
+        });
+    });
 </script>

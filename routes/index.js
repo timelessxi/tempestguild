@@ -104,31 +104,41 @@ router.post('/admin/news/delete/:id', isAuthenticated, isAdminOrGuildMaster, asy
     }
 });
 
-// User management routes
 router.post('/admin/users/approve/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
     const userId = req.params.id;
     const { role_id } = req.body;
+
     try {
+        // Get the user to be approved
         const [user] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+
         if (!user || user.length === 0) {
             return res.status(400).send('User not found');
         }
 
-        const claimedCharacter = user[0].main_character;
-        if (claimedCharacter) {
-            const moveResult = await moveCharacterToUser(userId, claimedCharacter);
-            if (!moveResult.success) {
-                return res.status(400).send(moveResult.message);
+        const claimedCharacterName = user[0].main_character;
+
+        if (claimedCharacterName) {
+            // Check if the main character is already claimed by another user
+            const [character] = await db.query('SELECT * FROM characters WHERE name = ? AND status = "claimed"', [claimedCharacterName]);
+            if (character.length > 0) {
+                return res.status(400).send(`Character '${claimedCharacterName}' is already claimed by another user. Approval not allowed.`);
             }
+
+            // Update the character status to claimed and associate it with the user
+            await db.query('UPDATE characters SET status = "claimed", user_id = ? WHERE name = ?', [userId, claimedCharacterName]);
         }
 
-        await db.query('UPDATE users SET status = ?, role_id = ?, main_character = NULL WHERE id = ?', ['approved', role_id, userId]);
+        // Update user status to approved and set the role
+        await db.query('UPDATE users SET status = ?, role_id = ? WHERE id = ?', ['approved', role_id, userId]);
+        
         res.redirect('/admin');
     } catch (error) {
         console.error('Error approving user:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 router.post('/admin/users/deny/:id', isAuthenticated, isAdminOrGuildMaster, async (req, res) => {
     const userId = req.params.id;
