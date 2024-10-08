@@ -11,6 +11,7 @@ const flash = require('connect-flash'); // Flash messages
 const authRoutes = require('./routes/auth'); // Auth routes for login/register/logout
 const indexRoutes = require('./routes/index'); // Main routes for the application
 const profileRoutes = require('./routes/profile'); // Profile routes for viewing/editing user profiles
+const errorRoutes = require('./routes/404'); // Error routes for 404 pages
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -71,11 +72,7 @@ app.use((req, res, next) => {
 app.use('/', authRoutes); // Authentication routes for login, register, logout
 app.use('/', indexRoutes); // General routes for home, roster, bank, etc.
 app.use('/profile', profileRoutes); // Profile routes for viewing/editing user profiles
-
-// Error handling
-app.use((req, res, next) => {
-    res.status(404).render('base', { title: 'Page Not Found', page: '404' });
-});
+app.use('*', errorRoutes); // 404 page
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);

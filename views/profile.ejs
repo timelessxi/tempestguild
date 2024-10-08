@@ -12,29 +12,44 @@
                         style="width: 150px; height: 150px; border: 3px solid #ddd;">
 
                     <!-- Display user email and activity information -->
-                    <p><strong>Email:</strong>
-                        <%= user.email %>
-                    </p>
-                    <p><strong>Member Since:</strong>
-                        <%= new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
-                            day: 'numeric' }) %>
-                    </p>
-
-                    <!-- Show Edit Profile button and upload form only for the logged-in user -->
                     <% if (loggedInUserId===user.id) { %>
-                        <a href="/profile/<%= user.id %>/edit" class="btn btn-primary mt-3 btn-block">Edit Profile</a>
-
-                        <!-- Form to upload new profile image -->
-                        <form action="/profile/<%= user.id %>/upload-image" method="POST" enctype="multipart/form-data"
-                            class="mt-3">
-                            <div class="form-group">
-                                <label for="profileImage" class="font-weight-bold">Change Profile Image:</label>
-                                <input type="file" name="profileImage" id="profileImage" class="form-control-file"
-                                    required>
-                            </div>
-                            <button type="submit" class="btn btn-secondary btn-block">Upload New Image</button>
-                        </form>
+                        <p><strong>Email:</strong>
+                            <%= user.email %>
+                        </p>
                         <% } %>
+
+                            <!-- Display User Role -->
+                            <p><strong>Role:</strong>
+                                <%= user.role_name %>
+                            </p>
+
+
+                            <!-- Display Main Character with Level and Class -->
+                            <% if (user.main_character) { %>
+                                <p><strong>Main Character</strong><br />
+                                    <%= user.main_character %> (Level <%= user.main_character_level %>
+                                            <%= user.main_character_class %>)
+                                </p>
+                                <% } %>
+
+                                    <!-- Show Edit Profile button and upload form only for the logged-in user -->
+                                    <% if (loggedInUserId===user.id) { %>
+                                        <a href="/profile/<%= user.id %>/edit"
+                                            class="btn btn-primary mt-3 btn-block">Edit Profile</a>
+
+                                        <!-- Form to upload new profile image -->
+                                        <form action="/profile/<%= user.id %>/upload-image" method="POST"
+                                            enctype="multipart/form-data" class="mt-3">
+                                            <div class="form-group">
+                                                <label for="profileImage" class="font-weight-bold">Change Profile
+                                                    Image:</label>
+                                                <input type="file" name="profileImage" id="profileImage"
+                                                    class="form-control-file" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-secondary btn-block">Upload New
+                                                Image</button>
+                                        </form>
+                                        <% } %>
                 </div> <!-- .card-body -->
             </div> <!-- .card -->
         </div> <!-- .col-md-4 -->
